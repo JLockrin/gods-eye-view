@@ -27,9 +27,10 @@ test('the complete Realtime tool payload pins the additive analyst, satellite, L
     .digest('hex');
   assert.equal(
     digest,
-    // Re-derived for the additive `local-adsb` set_layer_visibility value and
-    // the Cyber HUD layout; the separate sonar tool is excluded above.
-    '590d537d93e132ac64ac5e211ad5bb9d7d1b1f22e2dd963dda5465fab4510a3b',
+    // Re-derived for the five additive event-layer visibility/query enums
+    // (aviation, shipwrecks, tornadoes, volcanoes, UAP); the separate sonar
+    // tool is excluded above.
+    'bd9b266db1039eb48f125c6cbb4b88e1f9921228b0b8330732b385d68b0e0d73',
   );
 });
 
@@ -91,25 +92,34 @@ test('all legacy action arguments are byte-identical after removing the delibera
   );
   const layers = legacy.find((tool) => tool.name === 'analyst_query').parameters
     .properties.layers.items;
-  layers.enum = layers.enum.filter(
-    (key) =>
-      ![
-        'satellites',
-        'local-datacenters',
-        'local-dams',
-        'fire-perimeters',
-      ].includes(key),
-  );
+  const additiveLayers = [
+    'satellites',
+    'local-datacenters',
+    'local-dams',
+    'fire-perimeters',
+    'aviation-accidents',
+    'shipwrecks',
+    'tornadoes',
+    'volcanoes',
+    'uap-sightings',
+  ];
+  layers.enum = layers.enum.filter((key) => !additiveLayers.includes(key));
   // Local ADS-B is an additive set_layer_visibility enum value.
   const visibility = legacy.find((tool) => tool.name === 'set_layer_visibility')
     .parameters.properties.layerId;
   visibility.enum = visibility.enum.filter(
-    (key) => !['local-adsb', 'fire-perimeters'].includes(key),
+    (key) =>
+      !['local-adsb', 'fire-perimeters', ...additiveLayers.slice(4)].includes(
+        key,
+      ),
   );
   for (const tool of legacy) {
     for (const value of Object.values(tool.parameters.properties)) {
       if (value.enum)
-        value.enum = value.enum.filter((key) => key !== 'fire-perimeters');
+        value.enum = value.enum.filter(
+          (key) =>
+            !['fire-perimeters', ...additiveLayers.slice(4)].includes(key),
+        );
     }
   }
   // Independently derived by executing trusted c9f9896 actionSchemas in the restricted container.

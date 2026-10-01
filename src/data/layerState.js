@@ -564,6 +564,11 @@ export const LAYER_STATE_REGISTRY = Object.freeze([
     disposition: 'enabled-only',
   }),
   Object.freeze({
+    id: 'aviation-accidents',
+    token: '0',
+    disposition: 'enabled-only',
+  }),
+  Object.freeze({
     id: 'bhote-koshi-2026',
     token: 'h',
     disposition: 'enabled-only',
@@ -640,8 +645,18 @@ export const LAYER_STATE_REGISTRY = Object.freeze([
     optionOwner: 'satellites',
   }),
   Object.freeze({
+    id: 'shipwrecks',
+    token: '3',
+    disposition: 'enabled-only',
+  }),
+  Object.freeze({
     id: 'telegeography-submarine-cables',
     token: 'u',
+    disposition: 'enabled-only',
+  }),
+  Object.freeze({
+    id: 'tornadoes',
+    token: '4',
     disposition: 'enabled-only',
   }),
   Object.freeze({
@@ -651,6 +666,16 @@ export const LAYER_STATE_REGISTRY = Object.freeze([
     optionOwner: 'traffic',
   }),
   Object.freeze({ id: 'transit', token: 'j', disposition: 'enabled-only' }),
+  Object.freeze({
+    id: 'uap-sightings',
+    token: '6',
+    disposition: 'enabled-only',
+  }),
+  Object.freeze({
+    id: 'volcanoes',
+    token: '5',
+    disposition: 'enabled-only',
+  }),
   Object.freeze({
     id: 'weather-cyclones',
     token: 'y',

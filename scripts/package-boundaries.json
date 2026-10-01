@@ -1341,6 +1341,11 @@
       "src/app/layers/bikeshare.js",
       "src/app/layers/cctv.js",
       "src/app/layers/earthquakes.js",
+      "src/app/layers/uapSightings.js",
+      "src/app/layers/volcanoes.js",
+      "src/app/layers/tornadoes.js",
+      "src/app/layers/shipwrecks.js",
+      "src/app/layers/aviationAccidents.js",
       "src/app/layers/firms.js",
       "src/app/layers/flights.js",
       "src/app/layers/militaryAwareness.js",
@@ -1417,6 +1422,11 @@
       "src/data/detectionPresentation.js",
       "src/data/detectionRenderDemand.js",
       "src/data/earthquakes.js",
+      "src/data/uapSightings.js",
+      "src/data/volcanoes.js",
+      "src/data/tornadoes.js",
+      "src/data/shipwrecks.js",
+      "src/data/aviationAccidents.js",
       "src/data/fireAnchors.js",
       "src/data/firmsAdapt.js",
       "src/data/firmsHeatmap.js",
@@ -1560,6 +1570,28 @@
       "src/layers/cctv/state.js",
       "src/layers/cctv/testing.js",
       "src/layers/earthquakes/index.js",
+      "src/layers/uapSightings/cards.js",
+      "src/layers/uapSightings/records.js",
+      "src/layers/uapSightings/source.js",
+      "src/layers/uapSightings/index.js",
+      "src/layers/volcanoes/cards.js",
+      "src/layers/volcanoes/records.js",
+      "src/layers/volcanoes/source.js",
+      "src/layers/volcanoes/index.js",
+      "src/layers/tornadoes/cards.js",
+      "src/layers/tornadoes/records.js",
+      "src/layers/tornadoes/source.js",
+      "src/layers/tornadoes/index.js",
+      "src/layers/shipwrecks/cards.js",
+      "src/layers/shipwrecks/records.js",
+      "src/layers/shipwrecks/source.js",
+      "src/layers/shipwrecks/index.js",
+      "src/layers/aviationAccidents/cards.js",
+      "src/layers/aviationAccidents/records.js",
+      "src/layers/aviationAccidents/source.js",
+      "src/layers/aviationAccidents/index.js",
+      "src/layers/eventMarkers/pointEventLayer.js",
+      "src/layers/eventMarkers/selectedCard.js",
       "src/layers/earthquakes/model.js",
       "src/layers/earthquakes/source.js",
       "src/layers/firms/anchors.js",
@@ -2076,6 +2108,11 @@
       "src/app/layers/bikeshare.js",
       "src/app/layers/cctv.js",
       "src/app/layers/earthquakes.js",
+      "src/app/layers/uapSightings.js",
+      "src/app/layers/volcanoes.js",
+      "src/app/layers/tornadoes.js",
+      "src/app/layers/shipwrecks.js",
+      "src/app/layers/aviationAccidents.js",
       "src/app/layers/firms.js",
       "src/app/layers/flights.js",
       "src/app/layers/militaryAwareness.js",
@@ -2224,6 +2261,28 @@
       "src/layers/cctv/state.js",
       "src/layers/cctv/testing.js",
       "src/layers/earthquakes/index.js",
+      "src/layers/uapSightings/cards.js",
+      "src/layers/uapSightings/records.js",
+      "src/layers/uapSightings/source.js",
+      "src/layers/uapSightings/index.js",
+      "src/layers/volcanoes/cards.js",
+      "src/layers/volcanoes/records.js",
+      "src/layers/volcanoes/source.js",
+      "src/layers/volcanoes/index.js",
+      "src/layers/tornadoes/cards.js",
+      "src/layers/tornadoes/records.js",
+      "src/layers/tornadoes/source.js",
+      "src/layers/tornadoes/index.js",
+      "src/layers/shipwrecks/cards.js",
+      "src/layers/shipwrecks/records.js",
+      "src/layers/shipwrecks/source.js",
+      "src/layers/shipwrecks/index.js",
+      "src/layers/aviationAccidents/cards.js",
+      "src/layers/aviationAccidents/records.js",
+      "src/layers/aviationAccidents/source.js",
+      "src/layers/aviationAccidents/index.js",
+      "src/layers/eventMarkers/pointEventLayer.js",
+      "src/layers/eventMarkers/selectedCard.js",
       "src/layers/earthquakes/model.js",
       "src/layers/earthquakes/source.js",
       "src/layers/firms/anchors.js",
@@ -2853,6 +2912,16 @@
       "src/sources/httpBody.js",
       "src/layers/perimeters/source.js",
       "src/layers/perimeters/records.js",
+      "src/layers/uapSightings/records.js",
+      "src/layers/uapSightings/source.js",
+      "src/layers/volcanoes/records.js",
+      "src/layers/volcanoes/source.js",
+      "src/layers/tornadoes/records.js",
+      "src/layers/tornadoes/source.js",
+      "src/layers/shipwrecks/records.js",
+      "src/layers/shipwrecks/source.js",
+      "src/layers/aviationAccidents/records.js",
+      "src/layers/aviationAccidents/source.js",
       "src/layers/submarineCables/bundledSource.js"
     ],
     "external": []
@@ -3070,6 +3139,111 @@
       "src/layers/perimeters/records.js",
       "src/sources/httpBody.js",
       "src/layers/perimeters/source.js"
+    ],
+    "external": []
+  },
+  "aviation-accidents": {
+    "exports": ["./layers/aviation-accidents"],
+    "modules": [
+      "src/layers/aviationAccidents/index.js",
+      "src/layers/aviationAccidents/source.js",
+      "src/layers/aviationAccidents/records.js",
+      "src/layers/aviationAccidents/cards.js",
+      "src/layers/eventMarkers/pointEventLayer.js",
+      "src/layers/eventMarkers/selectedCard.js"
+    ],
+    "external": ["cesium"]
+  },
+  "aviation-accidents-source": {
+    "exports": ["./layers/aviation-accidents/source"],
+    "modules": [
+      "src/layers/aviationAccidents/records.js",
+      "src/layers/aviationAccidents/source.js"
+    ],
+    "external": []
+  },
+  "shipwrecks": {
+    "exports": ["./layers/shipwrecks"],
+    "modules": [
+      "src/layers/shipwrecks/index.js",
+      "src/layers/shipwrecks/source.js",
+      "src/layers/shipwrecks/records.js",
+      "src/layers/shipwrecks/cards.js",
+      "src/layers/eventMarkers/pointEventLayer.js",
+      "src/layers/eventMarkers/selectedCard.js",
+      "src/sources/httpBody.js"
+    ],
+    "external": ["cesium"]
+  },
+  "shipwrecks-source": {
+    "exports": ["./layers/shipwrecks/source"],
+    "modules": [
+      "src/layers/shipwrecks/records.js",
+      "src/layers/shipwrecks/source.js",
+      "src/sources/httpBody.js"
+    ],
+    "external": []
+  },
+  "tornadoes": {
+    "exports": ["./layers/tornadoes"],
+    "modules": [
+      "src/layers/tornadoes/index.js",
+      "src/layers/tornadoes/source.js",
+      "src/layers/tornadoes/records.js",
+      "src/layers/tornadoes/cards.js",
+      "src/layers/eventMarkers/selectedCard.js",
+      "src/sources/httpBody.js"
+    ],
+    "external": ["cesium"]
+  },
+  "tornadoes-source": {
+    "exports": ["./layers/tornadoes/source"],
+    "modules": [
+      "src/layers/tornadoes/records.js",
+      "src/layers/tornadoes/source.js",
+      "src/sources/httpBody.js"
+    ],
+    "external": []
+  },
+  "volcanoes": {
+    "exports": ["./layers/volcanoes"],
+    "modules": [
+      "src/layers/volcanoes/index.js",
+      "src/layers/volcanoes/source.js",
+      "src/layers/volcanoes/records.js",
+      "src/layers/volcanoes/cards.js",
+      "src/layers/eventMarkers/pointEventLayer.js",
+      "src/layers/eventMarkers/selectedCard.js",
+      "src/sources/httpBody.js"
+    ],
+    "external": ["cesium"]
+  },
+  "volcanoes-source": {
+    "exports": ["./layers/volcanoes/source"],
+    "modules": [
+      "src/layers/volcanoes/records.js",
+      "src/layers/volcanoes/source.js",
+      "src/sources/httpBody.js"
+    ],
+    "external": []
+  },
+  "uap-sightings": {
+    "exports": ["./layers/uap-sightings"],
+    "modules": [
+      "src/layers/uapSightings/index.js",
+      "src/layers/uapSightings/source.js",
+      "src/layers/uapSightings/records.js",
+      "src/layers/uapSightings/cards.js",
+      "src/layers/eventMarkers/pointEventLayer.js",
+      "src/layers/eventMarkers/selectedCard.js"
+    ],
+    "external": ["cesium"]
+  },
+  "uap-sightings-source": {
+    "exports": ["./layers/uap-sightings/source"],
+    "modules": [
+      "src/layers/uapSightings/records.js",
+      "src/layers/uapSightings/source.js"
     ],
     "external": []
   }

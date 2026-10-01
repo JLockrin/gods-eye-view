@@ -39,7 +39,7 @@ test('catalogs construct distinct layers and classification from their supplied 
     signal: b.signal,
     surface: fixtureSurface(b.signal),
   });
-  assert.equal(first.layers.length, 29);
+  assert.equal(first.layers.length, 34);
   assert.ok(first.get('local-adsb'), 'Local ADS-B is registered');
   assert.deepEqual(
     first.metadata.find(({ id }) => id === 'local-adsb'),
@@ -59,6 +59,11 @@ test('catalogs construct distinct layers and classification from their supplied 
       '2026-09-21T12:00:00.000Z',
     );
   assert.ok(first.get('fire-perimeters'));
+  assert.ok(first.get('aviation-accidents'));
+  assert.ok(first.get('shipwrecks'));
+  assert.ok(first.get('tornadoes'));
+  assert.ok(first.get('volcanoes'));
+  assert.ok(first.get('uap-sightings'));
   assert.ok(first.get('transit'));
   const order = first.layers.map(({ id }) => id);
   assert.deepEqual(

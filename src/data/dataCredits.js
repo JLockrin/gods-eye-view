@@ -160,6 +160,42 @@ export const DATA_CREDITS = [
       ' · Incident information: ' +
       '<a href="https://inciweb.wildfire.gov/" target="_blank" rel="noopener">InciWeb</a>',
   },
+  {
+    key: 'ntsb-aviation',
+    html:
+      'Aviation accidents: ' +
+      '<a href="https://www.ntsb.gov/" target="_blank" rel="noopener">National Transportation Safety Board</a>' +
+      ' aviation accident records (U.S. public domain)',
+  },
+  {
+    key: 'noaa-wrecks',
+    html:
+      'Shipwrecks: ' +
+      '<a href="https://nauticalcharts.noaa.gov/data/wrecks-and-obstructions.html" target="_blank" rel="noopener">NOAA Office of Coast Survey</a>' +
+      ' ENC wrecks (U.S. public domain; not for navigation)',
+  },
+  {
+    key: 'nws-spc-tornadoes',
+    html:
+      'Tornadoes &amp; severe weather: NWS Local Storm Reports / storm-based warnings via ' +
+      '<a href="https://mesonet.agron.iastate.edu/" target="_blank" rel="noopener">Iowa Environmental Mesonet</a>' +
+      ' · Day-1 tornado outlook: ' +
+      '<a href="https://www.spc.noaa.gov/" target="_blank" rel="noopener">NOAA Storm Prediction Center</a>' +
+      ' (U.S. public domain)',
+  },
+  {
+    key: 'usgs-volcanoes',
+    html:
+      'Volcanoes: Data courtesy of the ' +
+      '<a href="https://www.usgs.gov/programs/VHP" target="_blank" rel="noopener">U.S. Geological Survey Volcano Hazards Program</a>',
+  },
+  {
+    key: 'uap-sightings',
+    html:
+      'UAP sighting reports (unverified): geocoded NUFORC-derived compilation by Sigmond Axel ' +
+      '(<a href="https://doi.org/10.5281/zenodo.1205624" target="_blank" rel="noopener">Zenodo DOI 10.5281/zenodo.1205624</a>, CC BY 4.0) — ' +
+      'sighting reports only, not verified phenomena',
+  },
   OSM_CREDIT,
   OPENMAPTILES_CREDIT,
   {

@@ -43,6 +43,8 @@ const reservationRows = JSON.parse(
     'utf8',
   ),
 );
+/** Pre-growth closed set used by rebase/exhaustion scenario fixtures. */
+const legacyReservationRows = Object.entries(LEGACY_LAYER_STATE_TOKENS);
 
 test('pre-ledger published ownership is independent of the candidate mapping', () => {
   assert.notStrictEqual(
@@ -122,11 +124,15 @@ test('reservation ledger is complete, pinned, and rejects duplicate or malformed
     { ...parseLayerStateTokenReservations(reservationRows) },
     { ...LAYER_STATE_TOKEN_RESERVATIONS },
   );
-  assert.equal(Object.keys(LAYER_STATE_TOKEN_RESERVATIONS).length, 28);
-  assert.deepEqual(
-    { ...LAYER_STATE_TOKEN_RESERVATIONS },
-    { ...LEGACY_LAYER_STATE_TOKENS },
-  );
+  assert.equal(Object.keys(LAYER_STATE_TOKEN_RESERVATIONS).length, 33);
+  for (const [id, token] of Object.entries(LEGACY_LAYER_STATE_TOKENS)) {
+    assert.equal(LAYER_STATE_TOKEN_RESERVATIONS[id], token);
+  }
+  assert.equal(LAYER_STATE_TOKEN_RESERVATIONS['aviation-accidents'], '0');
+  assert.equal(LAYER_STATE_TOKEN_RESERVATIONS.shipwrecks, '3');
+  assert.equal(LAYER_STATE_TOKEN_RESERVATIONS.tornadoes, '4');
+  assert.equal(LAYER_STATE_TOKEN_RESERVATIONS.volcanoes, '5');
+  assert.equal(LAYER_STATE_TOKEN_RESERVATIONS['uap-sightings'], '6');
   assert.throws(
     () => parseLayerStateTokenReservations(reservationRows.slice(1)),
     /Missing or changed legacy/,
@@ -145,9 +151,9 @@ test('reservation ledger is complete, pinned, and rejects duplicate or malformed
     /Duplicate layer-state token reservation/,
   );
   assert.equal(
-    parseLayerStateTokenReservations([...reservationRows, ['future', '0']])
+    parseLayerStateTokenReservations([...reservationRows, ['future', '7']])
       .future,
-    '0',
+    '7',
   );
   assert.throws(
     () =>
@@ -165,14 +171,14 @@ test('reservation ledger is complete, pinned, and rejects duplicate or malformed
 
 test('published retired digits and competing PRs advance the merge-time allocation', () => {
   withPublishedBase(
-    { rows: [...reservationRows, ['retired-layer', '0']] },
+    { rows: [...reservationRows, ['retired-layer', '7']] },
     (cwd) => {
       const published = readPublishedLayerStateReservations('HEAD', cwd);
-      assert.equal(nextLayerStateToken(published), '3');
+      assert.equal(nextLayerStateToken(published), '8');
       assert.equal(
         validateLayerStateAllocations(published, {
           ...published,
-          newcomer: '3',
+          newcomer: '8',
         }),
         true,
       );
@@ -180,15 +186,15 @@ test('published retired digits and competing PRs advance the merge-time allocati
         () =>
           validateLayerStateAllocations(published, {
             ...published,
-            competing: '0',
+            competing: '7',
           }),
-        /next free token 3/,
+        /next free token 8/,
       );
       assert.throws(
         () =>
           validateLayerStateAllocations(published, {
             ...LAYER_STATE_TOKEN_RESERVATIONS,
-            newcomer: '0',
+            newcomer: '7',
           }),
         /changed or removed: retired-layer/,
       );
@@ -197,7 +203,7 @@ test('published retired digits and competing PRs advance the merge-time allocati
 });
 
 test('PR B manually replaces provisional 0 with 3 after PR A publishes 0', () => {
-  withPublishedBase({ rows: [...reservationRows, ['pr-a', '0']] }, (cwd) => {
+  withPublishedBase({ rows: [...legacyReservationRows, ['pr-a', '0']] }, (cwd) => {
     mkdirSync(path.join(cwd, 'scripts'));
     const fixtureChecker = path.join(
       cwd,
@@ -218,7 +224,7 @@ test('PR B manually replaces provisional 0 with 3 after PR A publishes 0', () =>
 
     writeCodecFixture(
       cwd,
-      [...reservationRows, ['pr-b', '0']],
+      [...legacyReservationRows, ['pr-b', '0']],
       [{ id: 'pr-b', token: '0' }],
     );
     const beforeRebase = runCheck();
@@ -227,7 +233,7 @@ test('PR B manually replaces provisional 0 with 3 after PR A publishes 0', () =>
 
     writeCodecFixture(
       cwd,
-      [...reservationRows, ['pr-a', '0'], ['pr-b', '0']],
+      [...legacyReservationRows, ['pr-a', '0'], ['pr-b', '0']],
       [
         { id: 'pr-a', token: '0' },
         { id: 'pr-b', token: '0' },
@@ -239,7 +245,7 @@ test('PR B manually replaces provisional 0 with 3 after PR A publishes 0', () =>
 
     const published = readPublishedLayerStateReservations('HEAD', cwd);
     assert.equal(nextLayerStateToken(published), '3');
-    const validBaselineRows = [...reservationRows, ['pr-a', '0']];
+    const validBaselineRows = [...legacyReservationRows, ['pr-a', '0']];
     writeCodecFixture(cwd, validBaselineRows, [{ id: 'pr-a', token: '0' }]);
     const helper = spawnSync(
       process.execPath,
@@ -255,7 +261,7 @@ test('PR B manually replaces provisional 0 with 3 after PR A publishes 0', () =>
     );
     writeCodecFixture(
       cwd,
-      [...reservationRows, ['pr-a', '0'], ['pr-b', '3']],
+      [...legacyReservationRows, ['pr-a', '0'], ['pr-b', '3']],
       [
         { id: 'pr-a', token: '0' },
         { id: 'pr-b', token: '3' },
@@ -270,7 +276,7 @@ test('PR B manually replaces provisional 0 with 3 after PR A publishes 0', () =>
 test('allocation batches cross the last digit and base-36 pair boundaries in order', () => {
   const digitRows = [...'03456789'].map((digit) => [`retired-${digit}`, digit]);
   const allDigits = parseLayerStateTokenReservations([
-    ...reservationRows,
+    ...legacyReservationRows,
     ...digitRows,
   ]);
   const beforeNine = { ...allDigits };
@@ -329,7 +335,7 @@ test('an isolated valid two-character fixture round-trips an l field beyond the 
       token,
     }));
     const fixtureRows = [
-      ...reservationRows,
+      ...legacyReservationRows,
       ...priorDigits,
       ...fixtureLayers.map(({ id, token }) => [id, token]),
     ];
@@ -338,7 +344,10 @@ test('an isolated valid two-character fixture round-trips an l field beyond the 
     assert.equal(codec.validateLayerStateRegistry(), true);
     assert.equal(
       nextLayerStateToken(
-        parseLayerStateTokenReservations([...reservationRows, ...priorDigits]),
+        parseLayerStateTokenReservations([
+          ...legacyReservationRows,
+          ...priorDigits,
+        ]),
       ),
       '00',
     );

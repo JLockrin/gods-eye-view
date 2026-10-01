@@ -24,6 +24,11 @@ import { createApplicationAwareness } from './layers/militaryAwareness.js';
 import { createApplicationFirms } from './layers/firms.js';
 import { createApplicationEarthquakes } from './layers/earthquakes.js';
 import { createApplicationFirePerimeters } from './layers/perimeters.js';
+import { createApplicationAviationAccidents } from './layers/aviationAccidents.js';
+import { createApplicationShipwrecks } from './layers/shipwrecks.js';
+import { createApplicationTornadoes } from './layers/tornadoes.js';
+import { createApplicationVolcanoes } from './layers/volcanoes.js';
+import { createApplicationUapSightings } from './layers/uapSightings.js';
 import { createApplicationCables } from './layers/submarineCables.js';
 import { createInfrastructureLayers } from '../data/infrastructure.js';
 import { localGeoJsonServices } from './localGeojsonServices.js';
@@ -54,6 +59,11 @@ const SOURCE_METHODS = Object.freeze({
   cyclones: ['getSnapshot'],
   earthquakes: ['getSnapshot'],
   'fire-perimeters': ['getSnapshot'],
+  'aviation-accidents': ['getSnapshot'],
+  shipwrecks: ['getSnapshot'],
+  tornadoes: ['getSnapshot'],
+  volcanoes: ['getSnapshot'],
+  'uap-sightings': ['getSnapshot'],
   cables: ['fetch'],
 });
 
@@ -147,6 +157,13 @@ export function createApplicationCatalog({
         createApplicationFirePerimeters({
           source: sources['fire-perimeters'],
         }),
+        createApplicationAviationAccidents({
+          source: sources['aviation-accidents'],
+        }),
+        createApplicationShipwrecks({ source: sources.shipwrecks }),
+        createApplicationTornadoes({ source: sources.tornadoes }),
+        createApplicationVolcanoes({ source: sources.volcanoes }),
+        createApplicationUapSightings({ source: sources['uap-sightings'] }),
         createApplicationAlpr({ surface, source: sources.alpr }),
         satellites,
         createApplicationLaunches({ source: sources.launches, satellites }),

@@ -46,7 +46,17 @@ const PANEL_GROUPS = [
   },
   {
     label: 'Events',
-    ids: ['rocket-launches', 'earthquakes', 'local-firms', 'fire-perimeters'],
+    ids: [
+      'rocket-launches',
+      'earthquakes',
+      'local-firms',
+      'fire-perimeters',
+      'aviation-accidents',
+      'shipwrecks',
+      'tornadoes',
+      'volcanoes',
+      'uap-sightings',
+    ],
   },
   {
     label: 'Weather',
@@ -76,6 +86,11 @@ const PANEL_LABELS = {
   'alpr-cameras': 'Mapped ALPR Cameras',
   'local-datacenters': 'Data Centers',
   'local-firms': 'Active Fires',
+  'aviation-accidents': 'Aviation Accidents',
+  shipwrecks: 'Shipwrecks',
+  tornadoes: 'Tornadoes & Severe Weather',
+  volcanoes: 'Volcanoes & Eruptions',
+  'uap-sightings': 'UAP Sighting Reports',
 };
 
 function panelLabel(layer) {

@@ -199,14 +199,17 @@ function encode(state) {
 
 test('production registry is exact, canonical, and rejects incomplete contracts', async () => {
   assert.equal(validateLayerStateRegistry(), true);
-  assert.equal(REGISTERED_LAYER_IDS.length, 33);
-  assert.equal(new Set(REGISTERED_LAYER_IDS).size, 33);
+  assert.equal(REGISTERED_LAYER_IDS.length, 36);
+  assert.equal(new Set(REGISTERED_LAYER_IDS).size, 36);
   assert.ok(REGISTERED_LAYER_IDS.includes('transit'));
   assert.ok(REGISTERED_LAYER_IDS.includes('aviation-accidents'));
   assert.ok(REGISTERED_LAYER_IDS.includes('shipwrecks'));
   assert.ok(REGISTERED_LAYER_IDS.includes('tornadoes'));
   assert.ok(REGISTERED_LAYER_IDS.includes('volcanoes'));
   assert.ok(REGISTERED_LAYER_IDS.includes('uap-sightings'));
+  assert.ok(REGISTERED_LAYER_IDS.includes('tsunamis'));
+  assert.ok(REGISTERED_LAYER_IDS.includes('gdelt-geo'));
+  assert.ok(REGISTERED_LAYER_IDS.includes('historic-places'));
   assert.deepEqual(REGISTERED_LAYER_IDS, [...REGISTERED_LAYER_IDS].sort());
   assert.deepEqual(LEGACY_LAYER_STATE_TOKENS, {
     'ais-live-vessels': 'a',
@@ -249,16 +252,20 @@ test('production registry is exact, canonical, and rejects incomplete contracts'
   assert.equal(LAYER_STATE_TOKEN_RESERVATIONS.tornadoes, '4');
   assert.equal(LAYER_STATE_TOKEN_RESERVATIONS.volcanoes, '5');
   assert.equal(LAYER_STATE_TOKEN_RESERVATIONS['uap-sightings'], '6');
-  assert.equal(nextLayerStateToken(), '7');
+  assert.equal(LAYER_STATE_TOKEN_RESERVATIONS.tsunamis, '7');
+  assert.equal(LAYER_STATE_TOKEN_RESERVATIONS['gdelt-geo'], '8');
+  assert.equal(LAYER_STATE_TOKEN_RESERVATIONS['historic-places'], '9');
+  assert.equal(nextLayerStateToken(), '00');
   assert.equal(
-    nextLayerStateToken({ ...LAYER_STATE_TOKEN_RESERVATIONS, alpha: '7', bravo: '8' }),
-    '9',
+    nextLayerStateToken({
+      ...LAYER_STATE_TOKEN_RESERVATIONS,
+      alpha: '00',
+      bravo: '01',
+    }),
+    '02',
   );
   const digitsExhausted = {
     ...LAYER_STATE_TOKEN_RESERVATIONS,
-    ...Object.fromEntries(
-      [...'789'].map((digit) => [`prior-${digit}`, digit]),
-    ),
   };
   assert.equal(nextLayerStateToken(digitsExhausted), '00');
   assert.equal(
@@ -308,40 +315,47 @@ test('production registry is exact, canonical, and rejects incomplete contracts'
   assert.equal(
     validateLayerStateAllocations(
       LAYER_STATE_TOKEN_RESERVATIONS,
-      { ...LAYER_STATE_TOKEN_RESERVATIONS, future: '7', next: '8' },
-    ),
-    true,
-  );
-  assert.throws(
-    () => validateLayerStateAllocations(LAYER_STATE_TOKEN_RESERVATIONS, {
-      ...LAYER_STATE_TOKEN_RESERVATIONS,
-      future: '00',
-    }),
-    /next free token 7/,
-  );
-  const beforeLastDigit = { ...digitsExhausted };
-  delete beforeLastDigit['prior-9'];
-  assert.equal(
-    validateLayerStateAllocations(
-      beforeLastDigit,
-      { ...beforeLastDigit, futurePair: '00', futureDigit: '9' },
-    ),
-    true,
-  );
-  assert.equal(
-    validateLayerStateAllocations(
-      digitsExhausted,
-      { ...digitsExhausted, pairB: '01', pairA: '00' },
+      { ...LAYER_STATE_TOKEN_RESERVATIONS, future: '00', next: '01' },
     ),
     true,
   );
   assert.throws(
     () =>
+      validateLayerStateAllocations(LAYER_STATE_TOKEN_RESERVATIONS, {
+        ...LAYER_STATE_TOKEN_RESERVATIONS,
+        future: '01',
+      }),
+    /next free token 00/,
+  );
+  const beforeFirstPair = { ...LAYER_STATE_TOKEN_RESERVATIONS };
+  delete beforeFirstPair['historic-places'];
+  assert.equal(
+    validateLayerStateAllocations(beforeFirstPair, {
+      ...beforeFirstPair,
+      'historic-places': '9',
+      futurePair: '00',
+    }),
+    true,
+  );
+  assert.equal(
+    validateLayerStateAllocations(digitsExhausted, {
+      ...digitsExhausted,
+      pairB: '01',
+      pairA: '00',
+    }),
+    true,
+  );
+  assert.throws(
+    () =>
       validateLayerStateAllocations(
-        { ...LAYER_STATE_TOKEN_RESERVATIONS, merged: '7' },
-        { ...LAYER_STATE_TOKEN_RESERVATIONS, merged: '7', competing: '7' },
+        { ...LAYER_STATE_TOKEN_RESERVATIONS, merged: '00' },
+        {
+          ...LAYER_STATE_TOKEN_RESERVATIONS,
+          merged: '00',
+          competing: '00',
+        },
       ),
-    /next free token 8/,
+    /next free token 01/,
   );
   assert.throws(
     () => validateLayerStateAllocations({ future: '00' }, { future: '01' }),

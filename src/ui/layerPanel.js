@@ -56,6 +56,9 @@ const PANEL_GROUPS = [
       'tornadoes',
       'volcanoes',
       'uap-sightings',
+      'tsunamis',
+      'gdelt-geo',
+      'historic-places',
     ],
   },
   {
@@ -91,6 +94,9 @@ const PANEL_LABELS = {
   tornadoes: 'Tornadoes & Severe Weather',
   volcanoes: 'Volcanoes & Eruptions',
   'uap-sightings': 'UAP Sighting Reports',
+  tsunamis: 'Tsunamis',
+  'gdelt-geo': 'Geographic News',
+  'historic-places': 'Historic Places & Forgotten Infrastructure',
 };
 
 function panelLabel(layer) {

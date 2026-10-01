@@ -29,6 +29,9 @@ import { createApplicationShipwrecks } from './layers/shipwrecks.js';
 import { createApplicationTornadoes } from './layers/tornadoes.js';
 import { createApplicationVolcanoes } from './layers/volcanoes.js';
 import { createApplicationUapSightings } from './layers/uapSightings.js';
+import { createApplicationTsunamis } from './layers/tsunamis.js';
+import { createApplicationGdeltGeo } from './layers/gdeltGeo.js';
+import { createApplicationHistoricPlaces } from './layers/historicPlaces.js';
 import { createApplicationCables } from './layers/submarineCables.js';
 import { createInfrastructureLayers } from '../data/infrastructure.js';
 import { localGeoJsonServices } from './localGeojsonServices.js';
@@ -64,6 +67,9 @@ const SOURCE_METHODS = Object.freeze({
   tornadoes: ['getSnapshot'],
   volcanoes: ['getSnapshot'],
   'uap-sightings': ['getSnapshot'],
+  tsunamis: ['getSnapshot'],
+  'gdelt-geo': ['getSnapshot'],
+  'historic-places': ['getSnapshot'],
   cables: ['fetch'],
 });
 
@@ -164,6 +170,11 @@ export function createApplicationCatalog({
         createApplicationTornadoes({ source: sources.tornadoes }),
         createApplicationVolcanoes({ source: sources.volcanoes }),
         createApplicationUapSightings({ source: sources['uap-sightings'] }),
+        createApplicationTsunamis({ source: sources.tsunamis }),
+        createApplicationGdeltGeo({ source: sources['gdelt-geo'] }),
+        createApplicationHistoricPlaces({
+          source: sources['historic-places'],
+        }),
         createApplicationAlpr({ surface, source: sources.alpr }),
         satellites,
         createApplicationLaunches({ source: sources.launches, satellites }),

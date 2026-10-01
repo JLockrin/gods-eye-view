@@ -24,6 +24,8 @@ import { keySetupEndpoint } from '../standalone/key-setup.js';
 import { weatherProxy } from './weather.js';
 import { firePerimetersProxy } from './firePerimeters.js';
 import { volcanoesProxy } from './volcanoes.js';
+import { gdeltGeoProxy } from './gdeltGeo.js';
+import { historicPlacesProxy } from './historicPlaces.js';
 import { cycloneProxy } from './cyclones.js';
 import { windProxy } from './wind.js';
 
@@ -57,6 +59,8 @@ function localProviderPlugins() {
     cycloneProxy(),
     firePerimetersProxy(),
     volcanoesProxy(),
+    gdeltGeoProxy(),
+    historicPlacesProxy(),
     keySetupEndpoint(),
   ];
 }

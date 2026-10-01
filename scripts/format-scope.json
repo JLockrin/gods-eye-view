@@ -870,6 +870,7 @@
   "src/layers/eventMarkers/pointEventLayer.js",
   "src/layers/eventMarkers/selectedCard.js",
   "src/layers/eventMarkers/selectedCard.test.mjs",
+  "src/layers/eventMarkers/pointDepth.test.mjs",
   "src/layers/aviationAccidents/index.js",
   "src/layers/aviationAccidents/source.js",
   "src/layers/aviationAccidents/records.js",

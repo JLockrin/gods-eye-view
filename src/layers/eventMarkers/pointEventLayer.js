@@ -2,10 +2,17 @@ import * as Cesium from 'cesium';
 
 /**
  * Shared selectable point-event layer lifecycle used by the aviation, shipwreck,
- * volcano, and UAP layers. Ownership stays with each layer's factory; this helper
- * only owns the common Cesium/overlay/click plumbing so the five new event
- * layers do not invent a parallel architecture.
+ * volcano, UAP, tsunami, GDELT, and historic-places layers. Ownership stays with
+ * each layer's factory; this helper only owns the common Cesium/overlay/click
+ * plumbing so the event layers do not invent a parallel architecture.
  */
+
+/**
+ * Ground-clamped event markers must depth-test against the globe. Setting this
+ * to Infinity (always-on-top) made far-side points paint through the Earth.
+ * Traffic landing dots and TeleGeography cable points use the same `0` policy.
+ */
+export const EVENT_POINT_DISABLE_DEPTH_TEST_DISTANCE = 0;
 
 export function viewBoundsDegrees(viewer, { padFraction = 0.08 } = {}) {
   const rect = viewer?.camera?.computeViewRectangle?.(Cesium.Ellipsoid.WGS84);
@@ -297,7 +304,7 @@ export function createPointEventLayer({
                 outlineColor: Cesium.Color.WHITE.withAlpha(0.9),
                 outlineWidth: 1,
                 heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-                disableDepthTestDistance: Number.POSITIVE_INFINITY,
+                disableDepthTestDistance: EVENT_POINT_DISABLE_DEPTH_TEST_DISTANCE,
               },
               properties: {
                 stableId: row.stableId,

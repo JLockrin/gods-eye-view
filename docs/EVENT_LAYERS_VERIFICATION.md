@@ -70,6 +70,14 @@ node --test \
 npm run check:boundaries
 ```
 
+## Point marker depth / occlusion
+
+Event point markers (aviation, shipwrecks, volcanoes, UAP, tsunamis, GDELT, historic
+places, and tornado report points) depth-test against the globe
+(`disableDepthTestDistance: 0`). Far-side points must not paint through the Earth;
+near-side points remain pickable with detail cards. Regression covered by
+`src/layers/eventMarkers/pointDepth.test.mjs`.
+
 ## Known gaps (documented, still ship a polished layer)
 
 - **Aviation:** NTSB's authenticated developer API is not used; the layer ships a curated public-domain snapshot rather than live CAROL queries.

@@ -1,4 +1,5 @@
 import * as Cesium from 'cesium';
+import { EVENT_POINT_DISABLE_DEPTH_TEST_DISTANCE } from '../eventMarkers/pointEventLayer.js';
 import {
   TORNADO_OVERLAY_SOURCE_ID,
   TORNADO_PICK_PREFIX,
@@ -253,7 +254,7 @@ export function createTornadoesLayer({
                   outlineColor: Cesium.Color.WHITE.withAlpha(0.95),
                   outlineWidth: 1,
                   heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-                  disableDepthTestDistance: Number.POSITIVE_INFINITY,
+                  disableDepthTestDistance: EVENT_POINT_DISABLE_DEPTH_TEST_DISTANCE,
                 },
               }),
             );

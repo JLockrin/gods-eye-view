@@ -3630,6 +3630,7 @@
       "src/layers/tornadoes/records.js",
       "src/layers/tornadoes/cards.js",
       "src/layers/eventMarkers/selectedCard.js",
+      "src/layers/eventMarkers/pointEventLayer.js",
       "src/sources/httpBody.js"
     ],
     "external": [

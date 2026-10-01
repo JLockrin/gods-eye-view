@@ -1591,6 +1591,7 @@
       "src/layers/aviationAccidents/source.js",
       "src/layers/aviationAccidents/index.js",
       "src/layers/eventMarkers/pointEventLayer.js",
+      "src/layers/eventMarkers/selectedCard.js",
       "src/layers/earthquakes/model.js",
       "src/layers/earthquakes/source.js",
       "src/layers/firms/anchors.js",
@@ -2281,6 +2282,7 @@
       "src/layers/aviationAccidents/source.js",
       "src/layers/aviationAccidents/index.js",
       "src/layers/eventMarkers/pointEventLayer.js",
+      "src/layers/eventMarkers/selectedCard.js",
       "src/layers/earthquakes/model.js",
       "src/layers/earthquakes/source.js",
       "src/layers/firms/anchors.js",
@@ -3147,7 +3149,8 @@
       "src/layers/aviationAccidents/source.js",
       "src/layers/aviationAccidents/records.js",
       "src/layers/aviationAccidents/cards.js",
-      "src/layers/eventMarkers/pointEventLayer.js"
+      "src/layers/eventMarkers/pointEventLayer.js",
+      "src/layers/eventMarkers/selectedCard.js"
     ],
     "external": ["cesium"]
   },
@@ -3167,6 +3170,7 @@
       "src/layers/shipwrecks/records.js",
       "src/layers/shipwrecks/cards.js",
       "src/layers/eventMarkers/pointEventLayer.js",
+      "src/layers/eventMarkers/selectedCard.js",
       "src/sources/httpBody.js"
     ],
     "external": ["cesium"]
@@ -3187,6 +3191,7 @@
       "src/layers/tornadoes/source.js",
       "src/layers/tornadoes/records.js",
       "src/layers/tornadoes/cards.js",
+      "src/layers/eventMarkers/selectedCard.js",
       "src/sources/httpBody.js"
     ],
     "external": ["cesium"]
@@ -3208,6 +3213,7 @@
       "src/layers/volcanoes/records.js",
       "src/layers/volcanoes/cards.js",
       "src/layers/eventMarkers/pointEventLayer.js",
+      "src/layers/eventMarkers/selectedCard.js",
       "src/sources/httpBody.js"
     ],
     "external": ["cesium"]
@@ -3228,7 +3234,8 @@
       "src/layers/uapSightings/source.js",
       "src/layers/uapSightings/records.js",
       "src/layers/uapSightings/cards.js",
-      "src/layers/eventMarkers/pointEventLayer.js"
+      "src/layers/eventMarkers/pointEventLayer.js",
+      "src/layers/eventMarkers/selectedCard.js"
     ],
     "external": ["cesium"]
   },

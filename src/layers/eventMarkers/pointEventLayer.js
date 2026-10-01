@@ -97,6 +97,20 @@ export function createPointEventLayer({
   const canSelect = () =>
     overlayHost && screenSpaceEventHandlerFactory && picking;
 
+  function ownsPickId(pickedId) {
+    if (typeof pickedId !== 'string' || !pickedId.startsWith(pickPrefix))
+      return false;
+    return _rowById.has(pickedId.slice(pickPrefix.length));
+  }
+
+  function registerOwnership() {
+    picking?.registerPickOwner?.(id, ownsPickId);
+  }
+
+  function unregisterOwnership() {
+    picking?.unregisterPickOwner?.(id);
+  }
+
   function installMoveEndWatcher() {
     if (!viewportBounded || _moveEndRemover || !_viewer?.camera?.moveEnd)
       return;
@@ -228,6 +242,7 @@ export function createPointEventLayer({
       if (_dataSource) _dataSource.show = true;
       overlayHost?.setVisible?.(overlaySourceId, true);
       installClickHandler();
+      registerOwnership();
       installMoveEndWatcher();
     },
 
@@ -238,6 +253,7 @@ export function createPointEventLayer({
       if (_dataSource) _dataSource.show = false;
       removeMoveEndWatcher();
       removeClickHandler();
+      unregisterOwnership();
       clearSelection();
     },
 
@@ -322,6 +338,7 @@ export function createPointEventLayer({
       _request = null;
       removeMoveEndWatcher();
       removeClickHandler();
+      unregisterOwnership();
       clearSelection();
       _rowById.clear();
       _viewer = null;

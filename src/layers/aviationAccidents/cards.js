@@ -1,3 +1,5 @@
+import { selectedEventCardPresentation } from '../eventMarkers/selectedCard.js';
+
 export const AVIATION_OVERLAY_SOURCE_ID = 'aviation-accidents';
 export const AVIATION_PICK_PREFIX = 'aviation-accident:';
 
@@ -41,7 +43,7 @@ export function buildAviationCard(row) {
 
   return {
     id: `aviation-accident-card:${row.stableId}`,
-    selected: true,
+    ...selectedEventCardPresentation(),
     interactive: Boolean(row.sourceUrl),
     title: row.title || 'Aviation accident',
     details,

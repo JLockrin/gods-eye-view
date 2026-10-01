@@ -1,3 +1,5 @@
+import { selectedEventCardPresentation } from '../eventMarkers/selectedCard.js';
+
 export const TORNADO_OVERLAY_SOURCE_ID = 'tornadoes';
 export const TORNADO_PICK_PREFIX = 'tornado:';
 
@@ -29,7 +31,7 @@ export function buildTornadoCard(row) {
 
   return {
     id: `tornado-card:${row.stableId}`,
-    selected: true,
+    ...selectedEventCardPresentation(),
     interactive: Boolean(row.sourceUrl),
     title: row.title || 'Tornado / severe weather',
     details,

@@ -50,6 +50,21 @@ export function createTornadoesLayer({
   const canSelect = () =>
     overlayHost && screenSpaceEventHandlerFactory && picking;
 
+  function ownsPickId(pickedId) {
+    if (typeof pickedId !== 'string' || !pickedId.startsWith(TORNADO_PICK_PREFIX))
+      return false;
+    const rowId = pickedId.slice(TORNADO_PICK_PREFIX.length).split(':')[0];
+    return _rowById.has(rowId);
+  }
+
+  function registerOwnership() {
+    picking?.registerPickOwner?.('tornadoes', ownsPickId);
+  }
+
+  function unregisterOwnership() {
+    picking?.unregisterPickOwner?.('tornadoes');
+  }
+
   function publishSelectedCard() {
     if (!canSelect()) return;
     const row = _selectedId ? _rowById.get(_selectedId) : null;
@@ -161,6 +176,7 @@ export function createTornadoesLayer({
       if (_dataSource) _dataSource.show = true;
       overlayHost?.setVisible?.(TORNADO_OVERLAY_SOURCE_ID, true);
       installClickHandler();
+      registerOwnership();
     },
 
     disable() {
@@ -169,6 +185,7 @@ export function createTornadoesLayer({
       _enabled = false;
       if (_dataSource) _dataSource.show = false;
       removeClickHandler();
+      unregisterOwnership();
       clearSelection();
     },
 
@@ -276,6 +293,7 @@ export function createTornadoesLayer({
       _request?.abort();
       _request = null;
       removeClickHandler();
+      unregisterOwnership();
       clearSelection();
       _rowById.clear();
       _viewer = null;

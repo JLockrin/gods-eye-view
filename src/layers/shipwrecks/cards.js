@@ -1,3 +1,5 @@
+import { selectedEventCardPresentation } from '../eventMarkers/selectedCard.js';
+
 export const SHIPWRECK_OVERLAY_SOURCE_ID = 'shipwrecks';
 export const SHIPWRECK_PICK_PREFIX = 'shipwreck:';
 
@@ -19,7 +21,7 @@ export function buildShipwreckCard(row) {
 
   return {
     id: `shipwreck-card:${row.stableId}`,
-    selected: true,
+    ...selectedEventCardPresentation(),
     interactive: Boolean(row.sourceUrl),
     title: row.title || 'Shipwreck',
     details,

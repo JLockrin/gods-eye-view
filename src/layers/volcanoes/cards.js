@@ -1,3 +1,5 @@
+import { selectedEventCardPresentation } from '../eventMarkers/selectedCard.js';
+
 export const VOLCANO_OVERLAY_SOURCE_ID = 'volcanoes';
 export const VOLCANO_PICK_PREFIX = 'volcano:';
 
@@ -25,7 +27,7 @@ export function buildVolcanoCard(row) {
 
   return {
     id: `volcano-card:${row.stableId}`,
-    selected: true,
+    ...selectedEventCardPresentation(),
     interactive: Boolean(row.sourceUrl),
     title: row.title || 'Volcano',
     details,

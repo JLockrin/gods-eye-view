@@ -2,6 +2,34 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createVolcanoSource } from './source.js';
 
+test('client source fetches only the same-origin volcanoes proxy', async () => {
+  let requested;
+  const source = createVolcanoSource({
+    fetchImpl: async (url) => {
+      requested = String(url);
+      return new Response(
+        JSON.stringify({
+          fetchedAt: 1,
+          rows: [
+            {
+              stableId: '311120',
+              lat: 52.07,
+              lon: -176.11,
+              severity: 'watch',
+              title: 'Volcano · Great Sitkin',
+            },
+          ],
+        }),
+        { status: 200, headers: { 'content-type': 'application/json' } },
+      );
+    },
+  });
+  const rows = await source.getSnapshot();
+  assert.equal(requested, '/api/volcanoes');
+  assert.equal(rows.length, 1);
+  assert.equal(rows[0].stableId, '311120');
+});
+
 test('malformed successful response is never accepted as an empty volcano snapshot', async () => {
   const source = createVolcanoSource({
     fetchImpl: async () =>
@@ -13,31 +41,11 @@ test('malformed successful response is never accepted as an empty volcano snapsh
   await assert.rejects(source.getSnapshot(), /Malformed USGS volcano response/);
 });
 
-test('elevated-only success still yields rows', async () => {
+test('proxy HTTP failures surface their status', async () => {
   const source = createVolcanoSource({
-    fetchImpl: async (url) => {
-      if (String(url).includes('elevated')) {
-        return new Response(
-          JSON.stringify([
-            {
-              vName: 'Great Sitkin',
-              vnum: '311120',
-              lat: 52.07,
-              long: -176.11,
-              alertLevel: 'WATCH',
-              colorCode: 'ORANGE',
-              noticeSynopsis: 'Slow eruption',
-            },
-          ]),
-          { status: 200, headers: { 'content-type': 'application/json' } },
-        );
-      }
-      return new Response('nope', { status: 500 });
-    },
+    fetchImpl: async () => new Response('nope', { status: 502 }),
   });
-  const rows = await source.getSnapshot();
-  assert.equal(rows.length, 1);
-  assert.equal(rows[0].severity, 'watch');
+  await assert.rejects(source.getSnapshot(), /USGS volcano HTTP 502/);
 });
 
 test('response-body completion honors cancellation', async () => {

@@ -1,3 +1,5 @@
+import { selectedEventCardPresentation } from '../eventMarkers/selectedCard.js';
+
 export const UAP_OVERLAY_SOURCE_ID = 'uap-sightings';
 export const UAP_PICK_PREFIX = 'uap-sighting:';
 
@@ -26,7 +28,7 @@ export function buildUapCard(row) {
 
   return {
     id: `uap-sighting-card:${row.stableId}`,
-    selected: true,
+    ...selectedEventCardPresentation(),
     interactive: Boolean(row.sourceUrl),
     title: row.title || 'UAP sighting report',
     details,

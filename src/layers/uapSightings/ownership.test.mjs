@@ -14,12 +14,14 @@ test('uap selection card never claims verification', () => {
   });
   assert.match(card.details.join(' '), /not a verified phenomenon/i);
   assert.doesNotMatch(card.title, /confirmed|verified phenomenon/i);
+  assert.equal(card.variant, 'selected');
 });
 
 test('late uap refresh cannot publish after destroy', async () => {
   let resolve;
   let signal;
   const sources = [];
+  const owners = new Map();
   const viewer = {
     camera: {
       computeViewRectangle: () => ({
@@ -62,13 +64,17 @@ test('late uap refresh cannot publish after destroy', async () => {
     picking: {
       resolvePickId: () => null,
       isOwnedByOtherLayer: () => false,
+      registerPickOwner: (layerId, predicate) => owners.set(layerId, predicate),
+      unregisterPickOwner: (layerId) => owners.delete(layerId),
     },
     pointer: { isPointerFree: () => true },
   });
   layer.init(viewer);
   layer.enable(viewer);
+  assert.ok(owners.has('uap-sightings'));
   const pending = layer.update(viewer);
   layer.destroy(viewer);
+  assert.equal(owners.has('uap-sightings'), false);
   assert.equal(signal.aborted, true);
   resolve([
     {

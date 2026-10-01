@@ -196,6 +196,27 @@ export const DATA_CREDITS = [
       '(<a href="https://doi.org/10.5281/zenodo.1205624" target="_blank" rel="noopener">Zenodo DOI 10.5281/zenodo.1205624</a>, CC BY 4.0) — ' +
       'sighting reports only, not verified phenomena',
   },
+  {
+    key: 'ncei-tsunamis',
+    html:
+      'Tsunamis: ' +
+      '<a href="https://www.ncei.noaa.gov/products/natural-hazards/tsunamis-earthquakes-volcanoes/tsunamis/global-historical-data" target="_blank" rel="noopener">NOAA NCEI / WDS Global Historical Tsunami Database</a>' +
+      ' (doi:10.7289/V5PN93H7, U.S. public domain)',
+  },
+  {
+    key: 'gdelt-geo',
+    html:
+      'Geographic news: ' +
+      '<a href="https://blog.gdeltproject.org/gdelt-geo-2-0-api-debuts/" target="_blank" rel="noopener">GDELT Project</a>' +
+      ' geo-tagged news (Geo 2.0 / GKG / Event export; linked articles retain publisher terms)',
+  },
+  {
+    key: 'nps-nrhp',
+    html:
+      'Historic places: ' +
+      '<a href="https://www.nps.gov/subjects/nationalregister/data-downloads.htm" target="_blank" rel="noopener">National Park Service National Register of Historic Places</a>' +
+      ' unrestricted spatial points (U.S. public domain)',
+  },
   OSM_CREDIT,
   OPENMAPTILES_CREDIT,
   {

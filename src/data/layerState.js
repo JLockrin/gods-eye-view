@@ -598,7 +598,21 @@ export const LAYER_STATE_REGISTRY = Object.freeze([
     disposition: 'enabled+options',
     optionOwner: 'flights',
   }),
-  Object.freeze({ id: 'local-dams', token: 'q', disposition: 'enabled-only' }),
+  Object.freeze({
+    id: 'gdelt-geo',
+    token: '8',
+    disposition: 'enabled-only',
+  }),
+  Object.freeze({
+    id: 'historic-places',
+    token: '9',
+    disposition: 'enabled-only',
+  }),
+  Object.freeze({
+    id: 'local-dams',
+    token: 'q',
+    disposition: 'enabled-only',
+  }),
   Object.freeze({
     id: 'local-datacenters',
     token: 'd',
@@ -666,6 +680,11 @@ export const LAYER_STATE_REGISTRY = Object.freeze([
     optionOwner: 'traffic',
   }),
   Object.freeze({ id: 'transit', token: 'j', disposition: 'enabled-only' }),
+  Object.freeze({
+    id: 'tsunamis',
+    token: '7',
+    disposition: 'enabled-only',
+  }),
   Object.freeze({
     id: 'uap-sightings',
     token: '6',

@@ -308,7 +308,7 @@ test('production registry is exact, canonical, and rejects incomplete contracts'
   assert.equal(
     validateLayerStateAllocations(
       LAYER_STATE_TOKEN_RESERVATIONS,
-      { ...LAYER_STATE_TOKEN_RESERVATIONS, future: '0', next: '3' },
+      { ...LAYER_STATE_TOKEN_RESERVATIONS, future: '7', next: '8' },
     ),
     true,
   );
@@ -317,7 +317,7 @@ test('production registry is exact, canonical, and rejects incomplete contracts'
       ...LAYER_STATE_TOKEN_RESERVATIONS,
       future: '00',
     }),
-    /next free token 0/,
+    /next free token 7/,
   );
   const beforeLastDigit = { ...digitsExhausted };
   delete beforeLastDigit['prior-9'];

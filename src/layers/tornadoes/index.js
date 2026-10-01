@@ -72,7 +72,11 @@ export function createTornadoesLayer({
       };
     } else card.interactive = false;
     _selectedCardId = card.id;
-    overlayHost.setEntries(TORNADO_OVERLAY_SOURCE_ID, [card], CARD_HOST_OPTIONS);
+    overlayHost.setEntries(
+      TORNADO_OVERLAY_SOURCE_ID,
+      [card],
+      CARD_HOST_OPTIONS,
+    );
   }
 
   function pickedRowId(picked) {
@@ -205,7 +209,9 @@ export function createTornadoesLayer({
                       ),
                     ),
                     material: new Cesium.ColorMaterialProperty(
-                      color.withAlpha(row.kind === 'tornado-outlook' ? 0.18 : 0.28),
+                      color.withAlpha(
+                        row.kind === 'tornado-outlook' ? 0.18 : 0.28,
+                      ),
                     ),
                   },
                   polyline: {

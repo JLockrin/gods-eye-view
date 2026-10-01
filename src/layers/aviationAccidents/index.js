@@ -1,5 +1,8 @@
 import * as Cesium from 'cesium';
-import { createPointEventLayer, rowInBounds } from '../eventMarkers/pointEventLayer.js';
+import {
+  createPointEventLayer,
+  rowInBounds,
+} from '../eventMarkers/pointEventLayer.js';
 import {
   AVIATION_OVERLAY_SOURCE_ID,
   AVIATION_PICK_PREFIX,

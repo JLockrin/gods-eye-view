@@ -5,7 +5,10 @@ import { createTornadoSource } from './source.js';
 test('a total feed failure rejects instead of publishing empty success', async () => {
   const source = createTornadoSource({
     fetchImpl: async () =>
-      new Response('nope', { status: 503, headers: { 'content-type': 'text/plain' } }),
+      new Response('nope', {
+        status: 503,
+        headers: { 'content-type': 'text/plain' },
+      }),
   });
   await assert.rejects(source.getSnapshot(), /Tornado feed HTTP 503/);
 });

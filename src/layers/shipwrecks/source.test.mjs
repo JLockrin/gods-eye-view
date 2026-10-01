@@ -19,28 +19,20 @@ test('whole-globe bounds fail soft with an empty shipwreck snapshot', async () =
 
 test('malformed NOAA payloads are rejected', async () => {
   const source = createShipwreckSource({
-    fetchImpl: async () => ({
-      ok: true,
-      json: async () => ({ not: 'geojson' }),
-      headers: { get: () => null },
-      body: null,
-    }),
-  });
-  // readResponseJsonCapped may need Response-like; use a real Response.
-  const source2 = createShipwreckSource({
     fetchImpl: async () =>
       new Response(JSON.stringify({ not: 'geojson' }), {
         status: 200,
         headers: { 'content-type': 'application/json' },
       }),
   });
+  // Missing `features` normalizes to null and must not paint as success.
+  // Both harbor + approach queries return the same malformed body.
   await assert.rejects(
-    source2.getSnapshot({
+    source.getSnapshot({
       bounds: { west: -75, south: 39, east: -73, north: 41 },
     }),
     /Malformed NOAA wreck response/,
   );
-  assert.equal(typeof source.getSnapshot, 'function');
 });
 
 test('cancellation during JSON parsing cannot return a late snapshot', async () => {

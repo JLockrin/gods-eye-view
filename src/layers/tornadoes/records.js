@@ -75,7 +75,8 @@ export function normalizeTornadoReportSnapshot(geojson) {
       Math.abs(lat) > 90
     )
       continue;
-    const phenomena = textOrNull(properties.phenomena) || textOrNull(properties.type);
+    const phenomena =
+      textOrNull(properties.phenomena) || textOrNull(properties.type);
     if (phenomena && !/^T(?:O|ORN)/i.test(phenomena) && phenomena !== 'TORNADO')
       continue;
     const stableId =
@@ -84,18 +85,24 @@ export function normalizeTornadoReportSnapshot(geojson) {
         : String(feature.id);
     if (ids.has(stableId)) continue;
     ids.add(stableId);
-    const magnitude = textOrNull(properties.magnitude) || textOrNull(properties.mag);
+    const magnitude =
+      textOrNull(properties.magnitude) || textOrNull(properties.mag);
     const city = textOrNull(properties.city) || textOrNull(properties.typloc);
     const state = textOrNull(properties.state);
-    const remark = textOrNull(properties.remark) || textOrNull(properties.comments);
-    const valid = properties.valid || properties.utc_valid || properties.wfo_valid;
+    const remark =
+      textOrNull(properties.remark) || textOrNull(properties.comments);
+    const valid =
+      properties.valid || properties.utc_valid || properties.wfo_valid;
     rows.push({
       stableId,
       geometryType: 'point',
       lat,
       lon,
       title: city ? `Tornado report · ${city}` : 'Tornado report',
-      summary: remark || [city, state].filter(Boolean).join(', ') || 'NWS local storm report',
+      summary:
+        remark ||
+        [city, state].filter(Boolean).join(', ') ||
+        'NWS local storm report',
       kind: 'tornado-report',
       severity: magnitude || 'report',
       magnitude,
@@ -103,7 +110,8 @@ export function normalizeTornadoReportSnapshot(geojson) {
       state,
       time: typeof valid === 'string' ? valid : null,
       timeMs: parseTimeMs(valid),
-      sourceUrl: textOrNull(properties.href) || 'https://mesonet.agron.iastate.edu/lsr/',
+      sourceUrl:
+        textOrNull(properties.href) || 'https://mesonet.agron.iastate.edu/lsr/',
       polygons: null,
     });
   }
@@ -111,7 +119,10 @@ export function normalizeTornadoReportSnapshot(geojson) {
 }
 
 /** Storm-based warning / outlook polygons. */
-export function normalizeTornadoPolygonSnapshot(geojson, { kind = 'tornado-warning' } = {}) {
+export function normalizeTornadoPolygonSnapshot(
+  geojson,
+  { kind = 'tornado-warning' } = {},
+) {
   if (!Array.isArray(geojson?.features)) return null;
   const rows = [];
   const ids = new Set();
@@ -133,7 +144,8 @@ export function normalizeTornadoPolygonSnapshot(geojson, { kind = 'tornado-warni
       textOrNull(properties.LABEL) ||
       textOrNull(properties.label2) ||
       (kind === 'tornado-outlook' ? 'SPC tornado outlook' : 'Tornado warning');
-    const issue = properties.issue || properties.polygon_begin || properties.VALID;
+    const issue =
+      properties.issue || properties.polygon_begin || properties.VALID;
     rows.push({
       stableId,
       geometryType: 'polygon',
@@ -151,7 +163,8 @@ export function normalizeTornadoPolygonSnapshot(geojson, { kind = 'tornado-warni
         (kind === 'tornado-outlook' ? 'outlook' : 'warning'),
       time: typeof issue === 'string' ? issue : null,
       timeMs: parseTimeMs(issue),
-      sourceUrl: textOrNull(properties.href) ||
+      sourceUrl:
+        textOrNull(properties.href) ||
         (kind === 'tornado-outlook'
           ? 'https://www.spc.noaa.gov/products/outlook/'
           : 'https://mesonet.agron.iastate.edu/current/severe.phtml'),

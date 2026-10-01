@@ -13,13 +13,13 @@ Open the local URL Vite prints (typically `http://localhost:5173`). Open **Data 
 
 ## Layer checks
 
-| Layer | Toggle id | What to expect | Notes |
-| --- | --- | --- | --- |
-| Aviation Accidents | `aviation-accidents` | Point markers; click shows NTSB place/severity/year | Bundled NTSB public-domain snapshot; viewport-thinned. Zoom into the U.S. |
-| Shipwrecks | `shipwrecks` | Charted wreck points near coasts | Live NOAA ENC query. **Zoom into a coastal area** (viewport must be ≤ ~28°); whole-globe returns empty fail-soft |
-| Tornadoes & Severe Weather | `tornadoes` | Recent tornado LSR points + warning/outlook polygons when active | Live IEM + SPC. Quiet weather days may show only outlook polygons or nothing |
-| Volcanoes & Eruptions | `volcanoes` | U.S. volcanoes; elevated alerts emphasized | Live USGS status + elevated notices |
-| UAP Sighting Reports | `uap-sightings` | Historical report points; cards say **unverified sighting report** | Bundled CC BY 4.0 subset; never labeled as verified phenomena |
+| Layer                      | Toggle id            | What to expect                                                     | Notes                                                                                                            |
+| -------------------------- | -------------------- | ------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------- |
+| Aviation Accidents         | `aviation-accidents` | Point markers; click shows NTSB place/severity/year                | Bundled NTSB public-domain snapshot; viewport-thinned. Zoom into the U.S.                                        |
+| Shipwrecks                 | `shipwrecks`         | Charted wreck points near coasts                                   | Live NOAA ENC query. **Zoom into a coastal area** (viewport must be ≤ ~28°); whole-globe returns empty fail-soft |
+| Tornadoes & Severe Weather | `tornadoes`          | Recent tornado LSR points + warning/outlook polygons when active   | Live IEM + SPC. Quiet weather days may show only outlook polygons or nothing                                     |
+| Volcanoes & Eruptions      | `volcanoes`          | U.S. volcanoes; elevated alerts emphasized                         | Live USGS status + elevated notices                                                                              |
+| UAP Sighting Reports       | `uap-sightings`      | Historical report points; cards say **unverified sighting report** | Bundled CC BY 4.0 subset; never labeled as verified phenomena                                                    |
 
 ## Share links
 

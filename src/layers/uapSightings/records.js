@@ -48,9 +48,7 @@ export function normalizeUapSightingSnapshot(payload) {
         rows.push({
           ...feature,
           verified: false,
-          label:
-            feature.label ||
-            'Sighting report — not a verified phenomenon',
+          label: feature.label || 'Sighting report — not a verified phenomenon',
         });
       }
       continue;

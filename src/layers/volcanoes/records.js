@@ -41,7 +41,8 @@ function normalizeFeature(feature, index) {
     Math.abs(lat) > 90
   )
     return null;
-  const vnum = textOrNull(properties.vnum) || textOrNull(String(properties.vnum));
+  const vnum =
+    textOrNull(properties.vnum) || textOrNull(String(properties.vnum));
   const name =
     textOrNull(properties.volcanoName) || textOrNull(properties.vName);
   const stableId =
@@ -59,7 +60,9 @@ function normalizeFeature(feature, index) {
     lat,
     lon,
     title: name ? `Volcano · ${name}` : 'Volcano',
-    summary: synopsis || `${alertLevel || 'UNASSIGNED'} / ${colorCode || 'UNASSIGNED'}`,
+    summary:
+      synopsis ||
+      `${alertLevel || 'UNASSIGNED'} / ${colorCode || 'UNASSIGNED'}`,
     kind: 'volcano',
     severity,
     name,
@@ -74,7 +77,8 @@ function normalizeFeature(feature, index) {
       textOrNull(properties.noticeUrl) ||
       textOrNull(properties.volcanoUrl) ||
       (vnum ? `https://volcano.si.edu/volcano.cfm?vn=${vnum}` : null),
-    elevated: severity === 'warning' || severity === 'watch' || severity === 'advisory',
+    elevated:
+      severity === 'warning' || severity === 'watch' || severity === 'advisory',
   };
 }
 

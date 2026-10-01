@@ -31,7 +31,8 @@ export function createAviationAccidentSource({
       signal?.throwIfAborted();
       if (cached) return cached;
       const response = await fetchImpl(url, { signal, cache: 'force-cache' });
-      if (!response.ok) throw new Error(`NTSB snapshot HTTP ${response.status}`);
+      if (!response.ok)
+        throw new Error(`NTSB snapshot HTTP ${response.status}`);
       const text = await response.text();
       signal?.throwIfAborted();
       const payload = await readGeoJsonLines(text);

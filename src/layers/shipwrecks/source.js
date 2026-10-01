@@ -16,7 +16,12 @@ function spanOk(bounds) {
     bounds.west <= bounds.east
       ? bounds.east - bounds.west
       : 360 - (bounds.west - bounds.east);
-  return latSpan > 0 && lonSpan > 0 && latSpan <= MAX_SPAN_DEG && lonSpan <= MAX_SPAN_DEG;
+  return (
+    latSpan > 0 &&
+    lonSpan > 0 &&
+    latSpan <= MAX_SPAN_DEG &&
+    lonSpan <= MAX_SPAN_DEG
+  );
 }
 
 function bboxParam(bounds) {
@@ -66,11 +71,13 @@ export function createShipwreckSource({
         queryLayer(APPROACH_WRECKS, bounds, signal),
       ]);
       signal?.throwIfAborted();
+      const collections = payloads.filter((payload) =>
+        Array.isArray(payload?.features),
+      );
+      if (!collections.length) throw new Error('Malformed NOAA wreck response');
       const merged = {
         type: 'FeatureCollection',
-        features: payloads.flatMap((payload) =>
-          Array.isArray(payload?.features) ? payload.features : [],
-        ),
+        features: collections.flatMap((payload) => payload.features),
       };
       const rows = normalizeShipwreckSnapshot(merged);
       if (!rows) throw new Error('Malformed NOAA wreck response');

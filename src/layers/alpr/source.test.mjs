@@ -82,7 +82,12 @@ test('extract detail tiles map OSM records and repeated pans reuse decoded tiles
   await source.fetch(austin);
   assert.equal(calls.length, fetched);
   assert.ok(calls.every((url) => !url.includes('overpass')));
-  assert.doesNotMatch(JSON.stringify(source.attribution), /flock/i);
+  assert.match(source.attribution.text, /OpenStreetMap contributors, ODbL/i);
+  assert.match(source.attribution.description, /DeFlock|FlockHopper/i);
+  assert.match(
+    source.attribution.description,
+    /not Flock Safety proprietary data/i,
+  );
 });
 
 test('outside extract coverage is an explicit no-data state without Overpass', async () => {

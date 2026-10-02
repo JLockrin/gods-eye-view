@@ -127,8 +127,8 @@ test('a selected camera without a bearing gets its badge and brackets, never a f
   h.overlay.sync(h.records);
   h.paint();
   assert.equal(h.draw.length, 2);
-  assert.ok(h.draw[0].endsWith('alpr-marker-selected.png'));
-  assert.ok(h.draw[1].endsWith('alpr-marker-selected-brackets.png'));
+  assert.ok(h.draw[0].endsWith('alpr-marker-selected-hazard.png'));
+  assert.ok(h.draw[1].endsWith('alpr-marker-brackets-hazard.png'));
   assert.equal(h.overlay.pick({ x: 100, y: 100 }), 'camera:0');
   assert.equal(h.entities.getById('camera:0').billboard.show.getValue(), true);
   assert.equal(

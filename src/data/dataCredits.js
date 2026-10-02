@@ -161,6 +161,14 @@ export const DATA_CREDITS = [
       '<a href="https://inciweb.wildfire.gov/" target="_blank" rel="noopener">InciWeb</a>',
   },
   OSM_CREDIT,
+  {
+    key: 'alpr-deflock',
+    html:
+      'ALPR cameras: © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap contributors</a> ' +
+      '(<a href="https://opendatacommons.org/licenses/odbl/1-0/" target="_blank" rel="noopener">ODbL</a>) — via ' +
+      '<a href="https://data.dontgetflocked.com" target="_blank" rel="noopener">DeFlock / FlockHopper</a> ' +
+      '(community-mapped locations; not Flock Safety proprietary data)',
+  },
   OPENMAPTILES_CREDIT,
   {
     key: 'overture-military-names',

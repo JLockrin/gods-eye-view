@@ -184,11 +184,12 @@ export function createAlprTileSource({
       for (const source of sources) source.clear();
       precision.clear();
     },
-    label: 'OpenStreetMap · community mapped',
+    label: 'OpenStreetMap · community mapped ALPR',
     attribution: {
       name: 'OpenStreetMap',
-      description: '© OpenStreetMap contributors, ODbL',
-      text: '© OpenStreetMap contributors, ODbL',
+      description:
+        'ALPR cameras © OpenStreetMap contributors, ODbL — via DeFlock / FlockHopper (data.dontgetflocked.com). Community-mapped locations only; not Flock Safety proprietary data.',
+      text: '© OpenStreetMap contributors, ODbL — via DeFlock / FlockHopper',
       href: 'https://www.openstreetmap.org/copyright',
     },
   };
@@ -260,11 +261,12 @@ export function createOverpassAlprSource({
   }
   return {
     fetch: fetchAlprNodes,
-    label: 'OpenStreetMap · community mapped',
+    label: 'OpenStreetMap · community mapped ALPR',
     attribution: {
       name: 'OpenStreetMap',
-      description: 'OpenStreetMap contributors (ODbL 1.0; community mapped)',
-      text: '© OpenStreetMap contributors',
+      description:
+        'ALPR cameras © OpenStreetMap contributors, ODbL — community mapped (Overpass). Not Flock Safety proprietary data.',
+      text: '© OpenStreetMap contributors, ODbL',
       href: 'https://www.openstreetmap.org/copyright',
     },
   };

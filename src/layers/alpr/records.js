@@ -1,8 +1,134 @@
-import { QUERY_LIMIT, QUERY_SNAP_DEGREES } from './policy.js';
+import {
+  QUERY_LIMIT,
+  QUERY_SNAP_DEGREES,
+  BRAND_FILTER_ALL,
+  BRAND_FILTER_FLOCK,
+  BRAND_FILTERS,
+  ALPR_FLOCK_COLOR,
+  ALPR_OTHER_COLOR,
+  ALPR_SELECTED_COLOR,
+  HEAT_GRID_DEGREES,
+  HEAT_RADIUS_PER_CAMERA_M,
+  HEAT_RADIUS_MIN_M,
+  HEAT_RADIUS_MAX_M,
+  MAX_HEAT_CELLS,
+} from './policy.js';
 
 export function textTag(value) {
   const t = String(value ?? '').trim();
   return t || null;
+}
+
+/**
+ * Whether a camera record is tagged as Flock Safety / flock (manufacturer or
+ * operator). Tile extracts map `brand` onto manufacturer.
+ * @param {object|null|undefined} record
+ * @returns {boolean}
+ */
+export function isFlockAlpr(record) {
+  const haystack = `${record?.manufacturer || ''} ${record?.operator || ''}`
+    .trim()
+    .toLowerCase();
+  if (!haystack) return false;
+  // Match "Flock Safety", "flock", etc. Avoid matching unrelated tokens that
+  // merely contain those letters as a substring of a longer word.
+  return /(?:^|[^a-z])flock(?:[^a-z]|$)/i.test(` ${haystack} `);
+}
+
+/** Normalize a brand-filter param; invalid values keep `fallback`. */
+export function normalizeBrandFilter(value, fallback = BRAND_FILTER_ALL) {
+  return BRAND_FILTERS.includes(value) ? value : fallback;
+}
+
+/**
+ * Apply the row brand filter. `all` keeps every record; `flock` keeps Flock
+ * matches only. Highlighting is a separate presentation concern.
+ * @param {Array<object>} records
+ * @param {string} brandFilter
+ * @returns {Array<object>}
+ */
+export function filterAlprByBrand(records, brandFilter) {
+  if (!Array.isArray(records)) return [];
+  if (normalizeBrandFilter(brandFilter) === BRAND_FILTER_FLOCK)
+    return records.filter(isFlockAlpr);
+  return records;
+}
+
+/**
+ * Hazard marker / wedge color for one record.
+ * @param {object} record
+ * @param {{selected?: boolean, brandFilter?: string}} [options]
+ * @returns {string} CSS hex color.
+ */
+export function alprHazardColor(record, { selected = false } = {}) {
+  if (selected) return ALPR_SELECTED_COLOR;
+  return isFlockAlpr(record) ? ALPR_FLOCK_COLOR : ALPR_OTHER_COLOR;
+}
+
+/**
+ * Aggregate cameras into soft danger-zone cells (density heat). Pure helper
+ * so tests pin the grid math without Cesium.
+ * @param {Array<object>} records
+ * @param {{gridDegrees?: number, maxCells?: number}} [options]
+ * @returns {Array<{id:string, latitude:number, longitude:number, count:number,
+ *   flockCount:number, radiusM:number, intensity:number}>}
+ */
+export function aggregateAlprHeatCells(
+  records,
+  { gridDegrees = HEAT_GRID_DEGREES, maxCells = MAX_HEAT_CELLS } = {},
+) {
+  if (!Array.isArray(records) || !records.length) return [];
+  const step =
+    Number.isFinite(gridDegrees) && gridDegrees > 0
+      ? gridDegrees
+      : HEAT_GRID_DEGREES;
+  const cells = new Map();
+  for (const record of records) {
+    if (
+      !Number.isFinite(record?.latitude) ||
+      !Number.isFinite(record?.longitude)
+    )
+      continue;
+    const latCell = Math.floor(record.latitude / step) * step;
+    const lonCell = Math.floor(record.longitude / step) * step;
+    const key = `${latCell.toFixed(5)}:${lonCell.toFixed(5)}`;
+    const existing = cells.get(key) || {
+      id: `alpr-heat:${key}`,
+      latCell,
+      lonCell,
+      count: 0,
+      flockCount: 0,
+      latSum: 0,
+      lonSum: 0,
+    };
+    existing.count += 1;
+    if (isFlockAlpr(record)) existing.flockCount += 1;
+    existing.latSum += record.latitude;
+    existing.lonSum += record.longitude;
+    cells.set(key, existing);
+  }
+  const ranked = [...cells.values()]
+    .map((cell) => {
+      const intensity = Math.min(1, Math.sqrt(cell.count / 8));
+      const radiusM = Math.min(
+        HEAT_RADIUS_MAX_M,
+        Math.max(
+          HEAT_RADIUS_MIN_M,
+          HEAT_RADIUS_MIN_M + cell.count * HEAT_RADIUS_PER_CAMERA_M,
+        ),
+      );
+      return {
+        id: cell.id,
+        latitude: cell.latSum / cell.count,
+        longitude: cell.lonSum / cell.count,
+        count: cell.count,
+        flockCount: cell.flockCount,
+        radiusM,
+        intensity,
+      };
+    })
+    .sort((a, b) => b.count - a.count || b.flockCount - a.flockCount);
+  return ranked.slice(0, Math.max(1, maxCells | 0));
 }
 
 export function numTag(value) {

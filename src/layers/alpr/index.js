@@ -8,6 +8,10 @@ import {
   QUERY_SNAP_DEGREES,
   QUERY_REUSE_MS,
   ALPR_COLOR,
+  ALPR_FLOCK_COLOR,
+  ALPR_OTHER_COLOR,
+  BRAND_FILTER_ALL,
+  BRAND_FILTER_FLOCK,
 } from './policy.js';
 import {
   snapAlprBox,
@@ -17,6 +21,7 @@ import {
   validateAlprSnapshot,
   alprCreditMarkup,
 } from './model.js';
+import { normalizeBrandFilter, isFlockAlpr } from './records.js';
 import { createAlprPresentation } from './presentation.js';
 
 /**
@@ -43,6 +48,7 @@ export function createAlprCamerasLayer({ source, services } = {}) {
   const state = {
     viewer: null,
     dataSource: null,
+    heatDataSource: null,
     credit: null,
     creditTimer: null,
     creditPresented: false,
@@ -76,10 +82,16 @@ export function createAlprCamerasLayer({ source, services } = {}) {
     renderRevision: 0,
     /** Cameras in view beyond the render cap. */
     renderSaturated: false,
+    /** `all` shows every ALPR (Flock highlighted); `flock` keeps Flock only. */
+    brandFilter: BRAND_FILTER_ALL,
   };
+  let rowControlsListener = null;
   const {
     initOverlay,
     destroyOverlay,
+    setCoverageEnabled,
+    syncCoverage,
+    tickCoverage,
     viewportBox,
     clearRendered,
     hideOnMapCredit,
@@ -92,6 +104,10 @@ export function createAlprCamerasLayer({ source, services } = {}) {
     installInteraction,
     prepareFloors,
   } = createAlprPresentation({ state, services, source });
+
+  function notifyRowControls() {
+    rowControlsListener?.();
+  }
 
   function setAlprStatus(status, error = null) {
     if (state.status === status && state.error === error) return;
@@ -289,6 +305,14 @@ export function createAlprCamerasLayer({ source, services } = {}) {
     }
   }
 
+  function cameraEntityCount() {
+    if (!state.dataSource) return 0;
+    let count = 0;
+    for (const entity of state.dataSource.entities.values)
+      if (!entity.gevAlprHeat) count += 1;
+    return count;
+  }
+
   const alprCamerasLayer = {
     id: LAYER_ID,
     name: 'ALPR Cameras',
@@ -300,15 +324,22 @@ export function createAlprCamerasLayer({ source, services } = {}) {
       if (state.viewer) throw new Error('ALPR layer is already initialized');
       state.viewer = viewer;
       state.dataSource = new Cesium.CustomDataSource('alpr-cameras');
+      state.heatDataSource = new Cesium.CustomDataSource('alpr-heat');
       const creditMarkup = alprCreditMarkup(source.attribution);
       state.credit = creditMarkup
         ? new Cesium.Credit(creditMarkup, true)
         : null;
+      // Heat first so harnesses that retain only the last dataSource still see cameras.
+      viewer.dataSources.add(state.heatDataSource);
       viewer.dataSources.add(state.dataSource);
-      state.moveEndRemove =
-        viewer.camera.moveEnd.addEventListener(scheduleLoad);
-      state.postRenderRemove =
-        viewer.scene.postRender?.addEventListener(updateSelectedAnchor);
+      state.moveEndRemove = viewer.camera.moveEnd.addEventListener(() => {
+        scheduleLoad();
+        if (state.enabled) syncCoverage();
+      });
+      state.postRenderRemove = viewer.scene.postRender?.addEventListener(() => {
+        updateSelectedAnchor();
+        if (state.enabled) tickCoverage();
+      });
       initOverlay();
       installInteraction(viewer);
     },
@@ -318,10 +349,13 @@ export function createAlprCamerasLayer({ source, services } = {}) {
       state.creditPresented = false;
       registerPickOwner(LAYER_ID, (id) => state.recordById.has(id));
       state.dataSource.show = true;
+      if (state.heatDataSource) state.heatDataSource.show = true;
+      setCoverageEnabled(true);
       // DataLayerManager calls update() right after enable(); it owns the first fetch.
     },
     disable() {
       state.enabled = false;
+      setCoverageEnabled(false);
       hideOnMapCredit();
       unregisterPickOwner(LAYER_ID);
       clearUnavailableRetry();
@@ -332,6 +366,7 @@ export function createAlprCamerasLayer({ source, services } = {}) {
       state.loading = false;
       state.retrying = false;
       if (state.dataSource) state.dataSource.show = false;
+      if (state.heatDataSource) state.heatDataSource.show = false;
       clearSelection();
       clearRendered();
       setAlprStatus('idle');
@@ -350,8 +385,11 @@ export function createAlprCamerasLayer({ source, services } = {}) {
       state.clickHandler?.destroy();
       state.clickHandler = null;
       clearRendered();
+      if (state.heatDataSource && viewer)
+        viewer.dataSources.remove(state.heatDataSource, true);
       if (state.dataSource && viewer)
         viewer.dataSources.remove(state.dataSource, true);
+      state.heatDataSource = null;
       state.dataSource = null;
       state.credit = null;
       state.creditPresented = false;
@@ -364,12 +402,55 @@ export function createAlprCamerasLayer({ source, services } = {}) {
       state.status = 'idle';
       state.stale = false;
       state.saturated = false;
+      state.brandFilter = BRAND_FILTER_ALL;
+      rowControlsListener = null;
       state.viewer = null;
     },
+    setParams(params = {}) {
+      let changed = false;
+      if (Object.prototype.hasOwnProperty.call(params, 'brandFilter')) {
+        const next = normalizeBrandFilter(
+          params.brandFilter,
+          state.brandFilter,
+        );
+        if (next !== state.brandFilter) {
+          state.brandFilter = next;
+          changed = true;
+        }
+      }
+      if (changed && state.enabled) {
+        renderRecords();
+        notifyRowControls();
+        governorRequestRender('alpr-params');
+      }
+      return true;
+    },
+    getParams() {
+      return { brandFilter: state.brandFilter };
+    },
+    setRowControlsListener(listener) {
+      rowControlsListener = typeof listener === 'function' ? listener : null;
+    },
     getRowControls() {
-      const count = state.dataSource?.entities.values.length || 0;
+      const count = cameraEntityCount();
+      const flockCount = state.records.filter(isFlockAlpr).length;
       return {
         chips: [
+          {
+            id: 'brand-all',
+            label: 'ALL ALPR',
+            active: state.brandFilter === BRAND_FILTER_ALL,
+            params: { brandFilter: BRAND_FILTER_ALL },
+            title:
+              'Show all community-mapped ALPR cameras; Flock Safety cameras stay sharpest red',
+          },
+          {
+            id: 'brand-flock',
+            label: 'FLOCK ONLY',
+            active: state.brandFilter === BRAND_FILTER_FLOCK,
+            params: { brandFilter: BRAND_FILTER_FLOCK },
+            title: 'Show only cameras tagged Flock Safety / flock',
+          },
           {
             id: 'find-camera',
             label: 'SHOW NEAREST',
@@ -383,24 +464,45 @@ export function createAlprCamerasLayer({ source, services } = {}) {
         ],
         legend: [
           {
-            label: 'Camera badges',
+            label: 'Flock Safety',
+            color: ALPR_FLOCK_COLOR,
+            count:
+              state.brandFilter === BRAND_FILTER_FLOCK ? count : flockCount,
+            blurb:
+              'Sharp hazard red. Community-mapped locations only — not footage or plates.',
+          },
+          {
+            label: 'Other ALPR',
+            color: ALPR_OTHER_COLOR,
+            count:
+              state.brandFilter === BRAND_FILTER_ALL
+                ? Math.max(0, count - Math.min(count, flockCount))
+                : 0,
+            blurb:
+              'Cooler warning rose when All ALPR is on. Dense clusters shade as avoid zones; outside coverage the basemap desaturates.',
+          },
+          {
+            label: 'Avoid-zone heat',
             color: ALPR_COLOR,
             count,
             blurb:
-              'Cyan cameras turn coral when selected. Wedges illustrate mapped direction, not measured coverage. Nearby cameras may be outside the screen.',
+              'Soft danger-zone glow around mapped cameras. Wedges illustrate direction, not measured coverage.',
           },
         ],
       };
     },
     getStats() {
+      const count = cameraEntityCount();
       return {
-        count: state.dataSource?.entities.values.length || 0,
+        count,
         countLabel:
           state.enabled && !state.noCoverage && state.status !== 'zoom-in'
-            ? `${state.dataSource?.entities.values.length || 0} nearby${
+            ? `${count} nearby${
                 Number.isInteger(state.onScreen)
                   ? ` · ${state.onScreen} on screen`
                   : ''
+              }${
+                state.brandFilter === BRAND_FILTER_FLOCK ? ' · flock only' : ''
               }`
             : '',
         noCoverage: Boolean(state.noCoverage),
@@ -409,7 +511,8 @@ export function createAlprCamerasLayer({ source, services } = {}) {
         saturated: state.saturated || state.renderSaturated,
         renderRevision: state.renderRevision,
         onScreen: state.onScreen ?? null,
-        shown: state.dataSource?.entities.values.length || 0,
+        shown: count,
+        brandFilter: state.brandFilter,
         error: state.error,
         status: state.status,
         loading: state.loading,
@@ -451,11 +554,25 @@ export {
   isAlprSurveillanceType,
   normalizeAlprNode,
   buildOverpassQuery,
+  isFlockAlpr,
+  filterAlprByBrand,
+  normalizeBrandFilter,
+  alprHazardColor,
+  aggregateAlprHeatCells,
 } from './model.js';
 export {
   QUERY_LIMIT,
   MAX_RENDERED,
   QUERY_SNAP_DEGREES,
   QUERY_REUSE_MS,
+  BRAND_FILTER_ALL,
+  BRAND_FILTER_FLOCK,
+  ALPR_FLOCK_COLOR,
+  ALPR_OTHER_COLOR,
 } from './policy.js';
 export { createOverpassAlprSource, createAlprTileSource } from './source.js';
+export {
+  coverageScreenRadiusPx,
+  paintCoverageMask,
+  createAlprCoverageGrade,
+} from './coverage.js';

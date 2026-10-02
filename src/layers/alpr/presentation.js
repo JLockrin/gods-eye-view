@@ -5,19 +5,27 @@ import {
   MAX_VIEWPORT_DEGREES,
   MAX_RENDERED,
   ALPR_COLOR,
-  ALPR_SELECTED_COLOR,
+  ALPR_FLOCK_COLOR,
+  ALPR_OTHER_COLOR,
   MARKER_ICON_SIZE,
   SELECTED_MARKER_ICON_SIZE,
   CREDIT_DISPLAY_MS,
   MARKER_FLOOR_LIFT_M,
   MARKER_SCALE_BY_DISTANCE,
+  BRAND_FILTER_ALL,
 } from './policy.js';
 import { boxContains } from './model.js';
+import {
+  aggregateAlprHeatCells,
+  alprHazardColor,
+  filterAlprByBrand,
+  isFlockAlpr,
+} from './records.js';
+import { createAlprCoverageGrade } from './coverage.js';
 import { createAlprFloorResolver } from './floors.js';
 import { createAlprOverlay } from './overlay.js';
 import {
-  MARKER_IMAGE,
-  SELECTED_IMAGE,
+  alprMarkerImage,
   alprDisplayId,
   alprLabelDetails,
   validAlprGroundHeight,
@@ -39,12 +47,15 @@ export function createAlprPresentation({ state, services, source }) {
     services,
     onSurfaceChange: refreshMarkerPlacements,
   });
+  const coverageGrade = createAlprCoverageGrade();
   let visibleRecords = [];
+  let heatCells = [];
   let selectionStartedAt = 0;
   /** Markers still clamped while their floor cell resolves (id -> entity). */
   const clampedMarkers = new Map();
   let floorResolve = null;
   const floors = createAlprFloorResolver(services.groundFloor);
+  state.brandFilter = state.brandFilter || BRAND_FILTER_ALL;
 
   /**
    * Marker placement from the cached ground floor (validated mesh or DEM, the
@@ -72,13 +83,14 @@ export function createAlprPresentation({ state, services, source }) {
   function viewRecords(records) {
     const box = viewportBox(state.viewer);
     if (!box) return { box, visible: [], capped: false };
-    let visible = records.filter((record) =>
-      boxContains(box, {
-        south: record.latitude,
-        north: record.latitude,
-        west: record.longitude,
-        east: record.longitude,
-      }),
+    let visible = filterAlprByBrand(records, state.brandFilter).filter(
+      (record) =>
+        boxContains(box, {
+          south: record.latitude,
+          north: record.latitude,
+          west: record.longitude,
+          east: record.longitude,
+        }),
     );
     const capped = visible.length > MAX_RENDERED;
     if (capped) {
@@ -142,6 +154,7 @@ export function createAlprPresentation({ state, services, source }) {
     let count = 0;
     try {
       for (const entity of state.dataSource.entities.values) {
+        if (entity.gevAlprHeat) continue;
         const position = entity.position?.getValue?.(Cesium.JulianDate.now());
         if (!position || !occluder.isPointVisible(position)) continue;
         const point = Cesium.SceneTransforms.worldToWindowCoordinates(
@@ -228,10 +241,11 @@ export function createAlprPresentation({ state, services, source }) {
   }
 
   function updateAppearance(entity, selected) {
+    const record = entity.gevAlprRecord;
     const color = Cesium.Color.fromCssColorString(
-      selected ? ALPR_SELECTED_COLOR : ALPR_COLOR,
+      alprHazardColor(record, { selected }),
     );
-    entity.billboard.image = selected ? SELECTED_IMAGE : MARKER_IMAGE;
+    entity.billboard.image = alprMarkerImage(record, selected);
     entity.billboard.width = entity.billboard.height = selected
       ? SELECTED_MARKER_ICON_SIZE
       : MARKER_ICON_SIZE;
@@ -243,8 +257,27 @@ export function createAlprPresentation({ state, services, source }) {
     }
   }
 
-  function markerColor() {
-    return Cesium.Color.fromCssColorString(ALPR_COLOR);
+  function markerColor(record) {
+    return Cesium.Color.fromCssColorString(alprHazardColor(record));
+  }
+
+  /** Hide far-side badges so they do not draw through the globe. */
+  function applyHorizonOcclusion() {
+    const camera = state.viewer?.camera;
+    if (!state.enabled || !state.dataSource || !camera?.positionWC) return;
+    const occluder = new Cesium.EllipsoidalOccluder(
+      Cesium.Ellipsoid.WGS84,
+      camera.positionWC,
+    );
+    for (const entity of state.dataSource.entities.values) {
+      if (entity.gevAlprHeat) continue;
+      if (entity.gevAlprNativeAppearance) continue; // overlay owns visibility
+      const position = entity.position?.getValue?.(Cesium.JulianDate.now());
+      if (!position) continue;
+      const visible = occluder.isPointVisible(position);
+      if (entity.billboard && entity.gevAlprShown !== false)
+        entity.billboard.show = visible;
+    }
   }
 
   // The horizon rectangle is unstable during low-angle orbits and can exclude
@@ -308,9 +341,13 @@ export function createAlprPresentation({ state, services, source }) {
     floorResolve = null;
     overlay.clear();
     visibleRecords = [];
+    heatCells = [];
     clampedMarkers.clear();
     if (state.dataSource?.entities) state.dataSource.entities.removeAll();
+    if (state.heatDataSource?.entities)
+      state.heatDataSource.entities.removeAll();
     removeEntityContextsForLayer(LAYER_ID);
+    coverageGrade.sync({ records: [], heatCells: [], viewerArg: state.viewer });
   }
 
   function hideOnMapCredit() {
@@ -329,12 +366,19 @@ export function createAlprPresentation({ state, services, source }) {
       services.credits?.showOsmCredit
     ) {
       services.credits.showOsmCredit(state.viewer, LAYER_ID);
-      return;
     }
+    // Flash the richer ALPR feed credit (DeFlock / FlockHopper) once; the short
+    // OSM owner credit above stays while cameras remain on screen.
     if (!state.enabled || state.creditPresented || !state.credit) return;
     state.creditPresented = true;
     state.viewer.creditDisplay?.addStaticCredit(state.credit);
-    state.creditTimer = setTimeout(hideOnMapCredit, CREDIT_DISPLAY_MS);
+    state.creditTimer = setTimeout(() => {
+      clearTimeout(state.creditTimer);
+      state.creditTimer = null;
+      if (state.credit)
+        state.viewer?.creditDisplay?.removeStaticCredit(state.credit);
+      governorRequestRender('alpr-credit');
+    }, CREDIT_DISPLAY_MS);
     governorRequestRender('alpr-credit');
   }
 
@@ -345,6 +389,7 @@ export function createAlprPresentation({ state, services, source }) {
     const { visible, capped } = viewRecords(state.records);
     state.renderSaturated = capped;
     visibleRecords = visible;
+    heatCells = aggregateAlprHeatCells(visible);
     // A refresh may retain its own selection, never reclaim one cleared or
     // replaced by an aircraft, another layer, or a voice action.
     if (
@@ -360,6 +405,7 @@ export function createAlprPresentation({ state, services, source }) {
     let changed = false;
     state.dataSource.entities.suspendEvents();
     for (const entity of [...state.dataSource.entities.values]) {
+      if (entity.gevAlprHeat) continue;
       if (!visibleIds.has(entity.id)) {
         state.dataSource.entities.remove(entity);
         clampedMarkers.delete(entity.id);
@@ -367,13 +413,14 @@ export function createAlprPresentation({ state, services, source }) {
       }
     }
     removeEntityContextsForLayer(LAYER_ID, { retainIds: visibleIds });
+    coverageGrade.renderHeatEntities(state.heatDataSource, heatCells);
     for (const record of visible) {
       const existing = state.dataSource.entities.getById(record.id);
       if (existing?.gevAlprRecord === record) {
         updateAppearance(existing, record.id === state.selectedId);
         continue;
       }
-      const color = markerColor();
+      const color = markerColor(record);
       const selected = record.id === state.selectedId;
       const { position, clamped } = markerPlacement(record);
       // Direction wedges are painted by the overlay for the nearest cameras.
@@ -384,13 +431,15 @@ export function createAlprPresentation({ state, services, source }) {
         id: record.id,
         position,
         billboard: {
-          image: selected ? SELECTED_IMAGE : MARKER_IMAGE,
+          image: alprMarkerImage(record, selected),
           width: selected ? SELECTED_MARKER_ICON_SIZE : MARKER_ICON_SIZE,
           height: selected ? SELECTED_MARKER_ICON_SIZE : MARKER_ICON_SIZE,
           heightReference: clamped
             ? Cesium.HeightReference.CLAMP_TO_GROUND
             : Cesium.HeightReference.NONE,
-          disableDepthTestDistance: Number.POSITIVE_INFINITY,
+          // Depth-test against the globe so far-side cameras do not show through.
+          // Near photoreal surfaces, a short disable window keeps badges readable.
+          disableDepthTestDistance: 500,
           // City-wide views hold hundreds of badges; let them shrink.
           scaleByDistance: new Cesium.NearFarScalar(
             ...MARKER_SCALE_BY_DISTANCE,
@@ -464,6 +513,7 @@ export function createAlprPresentation({ state, services, source }) {
           lastVerified: record.lastVerified,
           osmId: record.osmId,
           sourceTag: record.source,
+          flock: isFlockAlpr(record),
         },
       });
     }
@@ -473,6 +523,12 @@ export function createAlprPresentation({ state, services, source }) {
     for (const entity of state.dataSource.entities.values)
       if (entity.gevAlprClamped) clampedMarkers.set(entity.id, entity);
     resolveClampedFloors();
+    applyHorizonOcclusion();
+    coverageGrade.sync({
+      records: visible,
+      heatCells,
+      viewerArg: state.viewer,
+    });
     const selectedEntity = state.selectedId
       ? state.dataSource.entities.getById(state.selectedId)
       : null;
@@ -492,6 +548,7 @@ export function createAlprPresentation({ state, services, source }) {
     let nearest = null,
       distance = Infinity;
     for (const entity of state.dataSource.entities.values) {
+      if (entity.gevAlprHeat || !state.recordById.has(entity.id)) continue;
       const position = entity.position.getValue(Cesium.JulianDate.now());
       const candidate = Cesium.Cartesian3.distanceSquared(
         camera.positionWC,
@@ -637,8 +694,22 @@ export function createAlprPresentation({ state, services, source }) {
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
   }
   return {
-    initOverlay: () => overlay.init(),
-    destroyOverlay: () => overlay.destroy(),
+    initOverlay: () => {
+      overlay.init();
+      coverageGrade.setEnabled(Boolean(state.enabled));
+    },
+    destroyOverlay: () => {
+      coverageGrade.destroy();
+      overlay.destroy();
+    },
+    setCoverageEnabled: (on) => coverageGrade.setEnabled(on),
+    syncCoverage: () =>
+      coverageGrade.sync({
+        records: visibleRecords,
+        heatCells,
+        viewerArg: state.viewer,
+      }),
+    tickCoverage: () => coverageGrade.tick(),
     markerColor,
     viewportBox,
     clearRendered,
@@ -651,5 +722,10 @@ export function createAlprPresentation({ state, services, source }) {
     updateSelectedAnchor,
     installInteraction,
     prepareFloors,
+    legendColors: () => [
+      { label: 'Flock Safety', color: ALPR_FLOCK_COLOR },
+      { label: 'Other ALPR', color: ALPR_OTHER_COLOR },
+      { label: 'Avoid zone', color: ALPR_COLOR },
+    ],
   };
 }

@@ -42,10 +42,12 @@ test('OpenStreetMap has one generic data credit with separate tile and names dis
   const osm = DATA_CREDITS.filter((entry) =>
     entry.html.includes('openstreetmap.org/copyright'),
   );
-  assert.equal(osm.length, 1);
+  assert.equal(osm.length, 2);
   assert.equal(osm[0].key, 'openstreetmap');
   assert.match(osm[0].html, /Map and place data/);
   assert.match(osm[0].html, /© OpenStreetMap contributors/);
+  assert.equal(osm[1].key, 'alpr-deflock');
+  assert.match(osm[1].html, /DeFlock|FlockHopper/);
   assert.match(
     DATA_CREDITS.find((entry) => entry.key === 'openfreemap').html,
     /Vector tiles:/,

@@ -11,6 +11,7 @@ import {
 } from './policy.js';
 import {
   MARKER_IMAGE,
+  FLOCK_MARKER_IMAGE,
   SELECTED_IMAGE,
   BRACKETS_IMAGE,
   directionWedgePositions,
@@ -18,6 +19,7 @@ import {
   paintDirectionWedge,
   validAlprGroundHeight,
 } from './visuals.js';
+import { isFlockAlpr } from './records.js';
 
 /** Per-layer presentation on a caller-owned overlay; Cesium remains the fallback. */
 export function createAlprOverlay({
@@ -237,7 +239,11 @@ export function createAlprOverlay({
       const entity = state.dataSource.entities.getById(record.id);
       if (!entity) continue;
       const selected = record.id === state.selectedId;
-      const image = images[selected ? 1 : 0];
+      const image = selected
+        ? images[1]
+        : isFlockAlpr(record)
+          ? images[3]
+          : images[0];
       if (
         !image?.complete ||
         !image.naturalWidth ||
@@ -285,7 +291,7 @@ export function createAlprOverlay({
         if (left && right) {
           ctx.save();
           ctx.globalAlpha *= alpha;
-          paintDirectionWedge(ctx, origin, left, right, selected);
+          paintDirectionWedge(ctx, origin, left, right, selected, record);
           ctx.restore();
         }
       }
@@ -361,7 +367,12 @@ export function createAlprOverlay({
         id: `alpr-${Cesium.createGuid()}`,
         active: false,
       });
-      images = [MARKER_IMAGE, SELECTED_IMAGE, BRACKETS_IMAGE].map((src) => {
+      images = [
+        MARKER_IMAGE,
+        SELECTED_IMAGE,
+        BRACKETS_IMAGE,
+        FLOCK_MARKER_IMAGE,
+      ].map((src) => {
         const image = new Image();
         image.onload = requestPaint;
         image.onerror = requestPaint;

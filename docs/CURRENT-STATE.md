@@ -470,8 +470,13 @@ registration supplies selection, picking, terrain and
 render services. Selected cards and Data attribution identify OpenStreetMap.
 Layer state and the existing voice layer tools include `alpr-cameras`.
 The row count explicitly says **nearby**: loaded records can be outside the
-screen. Cyan camera badges use Manjunath's camera artwork; selection switches to a
-larger coral badge with corner brackets and an animated tactical card. Numeric
+screen. Hazard-red camera badges (Manjunath's silhouette artwork, recolored for
+avoid-zone framing) highlight Flock Safety cameras in the sharpest red and other
+ALPRs in a cooler warning rose; selection switches to a larger coral badge with
+corner brackets and an animated tactical card. Row chips offer **ALL ALPR** or
+**FLOCK ONLY**. Soft danger-zone heat and a subtle watched motif mark dense
+coverage; while the layer is on, the basemap desaturates outside those coverage
+blobs and restores when the layer turns off. Numeric
 mapped bearings draw illustrative 90 m direction wedges (not measured coverage).
 The shared overlay paints gradients for at most 64 nearby cameras, promoting the
 selected camera; farther cameras keep native Cesium badges without wedges.

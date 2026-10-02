@@ -1,5 +1,13 @@
 # Changelog
 
+- Mapped ALPR cameras use hazard / avoid-zone framing: Flock Safety cameras are
+  sharpest red, other ALPRs a cooler warning rose, with ALL ALPR / FLOCK ONLY
+  row filters. Dense clusters draw soft danger-zone heat and a subtle watched
+  motif; while the layer is on, the basemap desaturates outside coverage and
+  restores full color when the layer turns off. Attribution credits
+  © OpenStreetMap contributors (ODbL) via DeFlock / FlockHopper — community-mapped
+  locations only, never Flock Safety proprietary APIs.
+
 - Public Overpass instances are no longer used by default. Street Traffic
   roads come from TomTom flow tiles, OpenFreeMap vector tiles, or both, chosen
   on the layer row (TomTom / OSM / Hybrid) or with `?trafficRoads=`. With a

@@ -394,28 +394,36 @@ test('OSM attribution stays inline while ALPR displays and follows toggles', asy
   try {
     assert.equal(h.credits.size, 0);
     await alprCamerasLayer.update();
-    assert.equal(h.credits.size, 1);
-    const [credit] = h.credits;
-    assert.equal(credit.showOnScreen, true);
-    assert.match(credit.html, />© OpenStreetMap</);
-    assert.doesNotMatch(credit.html, /OpenMapTiles|Map and place data/);
+    assert.ok(h.credits.size >= 1);
+    const creditHtml = [...h.credits].map((credit) => credit.html).join('\n');
+    assert.match(creditHtml, />© OpenStreetMap</);
+    assert.match(creditHtml, /DeFlock|FlockHopper|ODbL/i);
+    assert.ok([...h.credits].every((credit) => credit.showOnScreen === true));
     t.mock.timers.tick(6000);
-    assert.equal(h.credits.size, 1);
+    // Long feed credit may collapse; short OSM owner credit remains while cameras show.
+    assert.ok(h.credits.size >= 1);
+    assert.ok(
+      [...h.credits].some((credit) => />© OpenStreetMap</.test(credit.html)),
+    );
     alprCamerasLayer.disable();
     assert.equal(h.credits.size, 0);
     alprCamerasLayer.enable();
     await alprCamerasLayer.update();
-    assert.equal(h.credits.size, 1);
+    assert.ok(h.credits.size >= 1);
     assert.match(
       DATA_CREDITS.find((entry) => entry.key === 'openstreetmap').html,
       /OpenStreetMap contributors.*ODbL/,
+    );
+    assert.match(
+      DATA_CREDITS.find((entry) => entry.key === 'alpr-deflock').html,
+      /DeFlock|FlockHopper/,
     );
   } finally {
     h.restore();
   }
 });
 
-test('all manufacturers share one ALPR title and color; only supplied metadata appears underneath', async () => {
+test('ALPR titles stay compact; Flock cameras use a distinct hazard badge', async () => {
   const h = cameraHarness();
   try {
     h.setFetch(async () =>
@@ -444,23 +452,24 @@ test('all manufacturers share one ALPR title and color; only supplied metadata a
       entities.map((entity) => entity.gevLabelModel.title),
       ['ALPR-0042', 'ALPR-0043', 'ALPR-0044'],
     );
-    assert.equal(
-      new Set(entities.map((entity) => entity.billboard.image.getValue())).size,
-      1,
-    );
+    const images = entities.map((entity) => entity.billboard.image.getValue());
+    assert.match(images[0], /alpr-marker-flock\.png$/);
+    assert.match(images[1], /alpr-marker-hazard\.png$/);
+    assert.match(images[2], /alpr-marker-hazard\.png$/);
     assert.deepEqual(entities[0].gevLabelModel.details, [
-      'OSM MAPPED',
+      'OSM MAPPED · COMMUNITY ALPR',
+      'FLOCK SAFETY',
       'FLOCK SAFETY · CITY POLICE · FIXED',
       'PUBLIC MAP DATA',
     ]);
     assert.deepEqual(entities[1].gevLabelModel.details, [
-      'OSM MAPPED',
+      'OSM MAPPED · COMMUNITY ALPR',
       'MOTOROLA SOLUTIONS',
       'PUBLIC MAP DATA',
     ]);
     assert.deepEqual(
       entities[2].gevLabelModel.details,
-      ['OSM MAPPED', 'PUBLIC MAP DATA'],
+      ['OSM MAPPED · COMMUNITY ALPR', 'PUBLIC MAP DATA'],
       'unknown metadata is not guessed, but the source is always named',
     );
     for (const entity of entities) {
@@ -1182,6 +1191,8 @@ test('ground-centered orbits ignore horizon rectangles while sky, distant and da
 test('nearby count and discovery control frame a real loaded camera without fetching or stealing tracking', async () => {
   const h = cameraHarness();
   const flights = [];
+  const nearestChip = (controls = alprCamerasLayer.getRowControls()) =>
+    controls.chips.find((chip) => chip.id === 'find-camera');
   h.viewer.camera.positionWC = Cesium.Cartesian3.fromDegrees(
     -97.7431,
     30.2672,
@@ -1192,12 +1203,13 @@ test('nearby count and discovery control frame a real loaded camera without fetc
   h.viewer.scene.globe.show = true;
   h.viewer.scene.globe.getHeight = () => 312;
   try {
-    assert.equal(alprCamerasLayer.getRowControls().chips[0].disabled, true);
+    assert.equal(nearestChip().disabled, true);
     await alprCamerasLayer.update();
     assert.equal(alprCamerasLayer.getStats().countLabel, '1 nearby');
     const controls = alprCamerasLayer.getRowControls();
-    assert.equal(controls.legend[0].label, 'Camera badges');
-    assert.equal(controls.chips[0].onClick(), true);
+    assert.equal(controls.legend[0].label, 'Flock Safety');
+    assert.ok(controls.chips.some((chip) => chip.id === 'brand-flock'));
+    assert.equal(nearestChip(controls).onClick(), true);
     assert.equal(flights.length, 1);
     assert.equal(getSelectedEntityContext().id, 'alpr:42');
     const center = Cesium.Cartographic.fromCartesian(flights[0].sphere.center);
@@ -1211,16 +1223,16 @@ test('nearby count and discovery control frame a real loaded camera without fetc
     assert.equal(flights[0].options.offset.range, 800);
     assert.equal(h.requests.length, 1);
     h.viewer.trackedEntity = {};
-    assert.equal(alprCamerasLayer.getRowControls().chips[0].disabled, true);
+    assert.equal(nearestChip().disabled, true);
     assert.equal(
-      controls.chips[0].onClick(),
+      nearestChip(controls).onClick(),
       false,
       'a stale button cannot steal the follow camera',
     );
     h.viewer.trackedEntity = undefined;
     alprCamerasLayer.disable();
     assert.equal(alprCamerasLayer.getStats().countLabel, '');
-    assert.equal(controls.chips[0].onClick(), false);
+    assert.equal(nearestChip(controls).onClick(), false);
     assert.equal(flights.length, 1);
   } finally {
     h.restore();
@@ -1489,6 +1501,33 @@ test('a repeated move inside an outstanding query keeps the displayed marker set
       h.source.entities.values.map((e) => e.id),
       ['alpr:43'],
     );
+  } finally {
+    h.restore();
+  }
+});
+
+test('brandFilter flock-only hides non-Flock cameras and restores on all', async () => {
+  const h = cameraHarness();
+  try {
+    h.setFetch(async () =>
+      cameraResponse([
+        cameraNode(42, {
+          tags: { 'surveillance:type': 'ALPR', manufacturer: 'Flock Safety' },
+        }),
+        cameraNode(43, {
+          tags: { 'surveillance:type': 'ALPR', manufacturer: 'Motorola' },
+        }),
+      ]),
+    );
+    await alprCamerasLayer.update();
+    assert.equal(alprCamerasLayer.getStats().count, 2);
+    assert.equal(alprCamerasLayer.setParams({ brandFilter: 'flock' }), true);
+    assert.equal(alprCamerasLayer.getParams().brandFilter, 'flock');
+    assert.equal(alprCamerasLayer.getStats().count, 1);
+    assert.ok(h.source.entities.getById('alpr:42'));
+    assert.equal(h.source.entities.getById('alpr:43'), undefined);
+    alprCamerasLayer.setParams({ brandFilter: 'all' });
+    assert.equal(alprCamerasLayer.getStats().count, 2);
   } finally {
     h.restore();
   }

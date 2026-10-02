@@ -1,5 +1,6 @@
 import * as Cesium from 'cesium';
 import { destinationPointDeg } from './model.js';
+import { alprHazardColor, isFlockAlpr } from './records.js';
 import {
   DIRECTION_CONE_M,
   DIRECTION_CONE_HALF_ANGLE_DEG,
@@ -21,20 +22,30 @@ export function markerScale(distanceM) {
   );
 }
 
-// Camera artwork and visual treatment contributed by Manjunath (@manjunath22466).
-// Module-relative assets also resolve when the layer is consumed by another app.
+// Camera artwork originally contributed by Manjunath (@manjunath22466);
+// hazard recolors keep the same silhouette for avoid-zone framing.
 export const MARKER_IMAGE = new URL(
-  './assets/alpr-marker-normal.png',
+  './assets/alpr-marker-hazard.png',
+  import.meta.url,
+).href;
+export const FLOCK_MARKER_IMAGE = new URL(
+  './assets/alpr-marker-flock.png',
   import.meta.url,
 ).href;
 export const SELECTED_IMAGE = new URL(
-  './assets/alpr-marker-selected.png',
+  './assets/alpr-marker-selected-hazard.png',
   import.meta.url,
 ).href;
 export const BRACKETS_IMAGE = new URL(
-  './assets/alpr-marker-selected-brackets.png',
+  './assets/alpr-marker-brackets-hazard.png',
   import.meta.url,
 ).href;
+
+/** Pick the hazard badge artwork for a record. */
+export function alprMarkerImage(record, selected = false) {
+  if (selected) return SELECTED_IMAGE;
+  return isFlockAlpr(record) ? FLOCK_MARKER_IMAGE : MARKER_IMAGE;
+}
 
 /** Compact display label; selection identity always uses the full record id. */
 export function alprDisplayId(record) {
@@ -47,8 +58,11 @@ export function alprLabelDetails(record, source) {
   const sourceName =
     source.attribution?.name || source.label || 'Camera source';
   const details = [
-    sourceName === 'OpenStreetMap' ? 'OSM MAPPED' : `Source: ${sourceName}`,
+    sourceName === 'OpenStreetMap'
+      ? 'OSM MAPPED · COMMUNITY ALPR'
+      : `Source: ${sourceName}`,
   ];
+  if (isFlockAlpr(record)) details.push('FLOCK SAFETY');
   if (Number.isFinite(record.directionDeg))
     details.push(`DIRECTION ${Math.round(record.directionDeg)}°`);
   const equipment = [
@@ -105,16 +119,28 @@ export function directionWedgePositions(record, heightM = 0, heightAt = null) {
   ];
 }
 
-/** Paint the original cyan/coral gradient with a crisp V-shaped boundary. */
-export function paintDirectionWedge(ctx, origin, left, right, selected) {
-  const rgb = selected ? '255, 100, 116' : '82, 212, 255';
+/** Paint a hazard-red gradient wedge with a crisp V-shaped boundary. */
+export function paintDirectionWedge(
+  ctx,
+  origin,
+  left,
+  right,
+  selected,
+  record,
+) {
+  const hex = alprHazardColor(record || {}, { selected });
+  const rgb = hex
+    .replace('#', '')
+    .match(/.{2}/g)
+    .map((part) => Number.parseInt(part, 16))
+    .join(', ');
   const gradient = ctx.createLinearGradient(
     origin.x,
     origin.y,
     (left.x + right.x) / 2,
     (left.y + right.y) / 2,
   );
-  const alpha = selected ? [0.8, 0.48, 0.22, 0.06] : [0.34, 0.2, 0.09, 0.025];
+  const alpha = selected ? [0.85, 0.52, 0.24, 0.06] : [0.42, 0.26, 0.12, 0.03];
   [0, 0.36, 0.72, 1].forEach((stop, i) =>
     gradient.addColorStop(stop, `rgba(${rgb}, ${alpha[i]})`),
   );
@@ -129,7 +155,7 @@ export function paintDirectionWedge(ctx, origin, left, right, selected) {
   ctx.moveTo(left.x, left.y);
   ctx.lineTo(origin.x, origin.y);
   ctx.lineTo(right.x, right.y);
-  ctx.strokeStyle = `rgba(${rgb}, ${selected ? 0.98 : 0.76})`;
+  ctx.strokeStyle = `rgba(${rgb}, ${selected ? 0.98 : 0.8})`;
   ctx.lineWidth = selected ? 2.5 : 1.5;
   ctx.lineJoin = 'round';
   ctx.stroke();

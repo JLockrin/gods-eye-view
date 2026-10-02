@@ -533,6 +533,8 @@
   "src/layers/alpr/visuals.js",
   "src/layers/alpr/overlay.js",
   "src/layers/alpr/overlay.test.mjs",
+  "src/layers/alpr/coverage.js",
+  "src/layers/alpr/coverage.test.mjs",
   "src/layers/alpr/source.js",
   "src/layers/alpr/source.test.mjs",
   "src/layers/radio/catalogModel.js",

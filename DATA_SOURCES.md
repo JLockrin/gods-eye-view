@@ -131,15 +131,27 @@ The richer structured dataset is licensed separately/commercially by TeleGeograp
 ### ALPR camera mapping
 
 The optional ALPR layer reads OpenStreetMap `surveillance:type=ALPR` nodes
-from a community-hosted hourly US/Canada extract, using detail vector tiles.
+from a community-hosted hourly US/Canada extract (DeFlock / FlockHopper tiles at
+`tiles.dontgetflocked.com`, with GeoJSON.gz batch feeds at
+`data.dontgetflocked.com` as a fallback source family), using detail vector tiles.
 It shows mapped locations and available tags, not plate records, camera video,
-current operating status or exhaustive coverage. OSM edit timestamps are not
-presented as field-verification dates. Other regions show no ALPR data.
+current operating status or exhaustive coverage. Crowdsourced mapping may be
+incomplete. OSM edit timestamps are not presented as field-verification dates.
+Other regions show no ALPR data. The layer never scrapes Flock Safety private or
+proprietary APIs.
+
+While the layer is on, Flock-tagged cameras use the sharpest hazard red; other
+ALPRs use a cooler warning rose (or can be filtered to Flock only). Dense
+clusters draw soft avoid-zone heat and a subtle watched motif; outside coverage
+the basemap desaturates so watched areas keep color. Toggle the layer off to
+restore the normal full-color globe.
 
 Reads are viewport-bounded, with at most 16 tiles per country, four concurrent
-reads per country, 1,500 displayed records and an hour-long decoded-tile cache.
+reads per country, 1,500 displayed records and an hour-long decoded-tile cache
+(daily freshness is enough; hourly tile refresh is accepted but not required).
 Displayed OSM-derived layers retain a short inline OpenStreetMap credit, plus
-OpenMapTiles while OpenFreeMap tiles are used; Data attribution retains the full credits. ODbL permits
+OpenMapTiles while OpenFreeMap tiles are used; Data attribution retains the full
+credits including DeFlock / FlockHopper as the convenient feed. ODbL permits
 commercial use with attribution and applicable database share-alike/access
 obligations; it does not license the application code. Trimmed test-only tile
 fixtures retain their provenance in `src/data/fixtures/README.md`.

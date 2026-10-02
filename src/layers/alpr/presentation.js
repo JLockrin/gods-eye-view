@@ -709,7 +709,12 @@ export function createAlprPresentation({ state, services, source }) {
         heatCells,
         viewerArg: state.viewer,
       }),
-    tickCoverage: () => coverageGrade.tick(),
+    tickCoverage: () =>
+      coverageGrade.tick({
+        records: visibleRecords,
+        heatCells,
+        viewerArg: state.viewer,
+      }),
     markerColor,
     viewportBox,
     clearRendered,

@@ -23,22 +23,23 @@ in vec2 v_textureCoordinates;
 void main() {
   vec2 uv = v_textureCoordinates;
   vec4 color = texture(colorTexture, uv);
-  float cover = texture(coverageTexture, uv).r;
+  // Canvas uploads are top-left origin; Cesium UVs are bottom-left.
+  float cover = texture(coverageTexture, vec2(uv.x, 1.0 - uv.y)).r;
   // Subtle watched pulse in dense coverage — restrained, not cartoonish.
   float pulse = 0.5 + 0.5 * sin(time * 1.6);
-  float watched = cover * (0.92 + 0.08 * pulse);
+  float watched = smoothstep(0.02, 0.55, cover) * (0.94 + 0.06 * pulse);
 
   float luma = dot(color.rgb, vec3(0.299, 0.587, 0.114));
-  vec3 gray = vec3(luma * 0.92);
+  vec3 gray = vec3(luma * 0.9);
   vec3 outside = mix(color.rgb, gray, clamp(intensity, 0.0, 1.0));
 
   // Inside coverage: restore scene color and lean toward hazard red.
   vec3 hazard = vec3(
-    min(1.0, color.r * 1.08 + 0.04 * watched),
-    color.g * (1.0 - 0.12 * watched),
-    color.b * (1.0 - 0.14 * watched)
+    min(1.0, color.r * 1.1 + 0.05 * watched),
+    color.g * (1.0 - 0.1 * watched),
+    color.b * (1.0 - 0.12 * watched)
   );
-  vec3 inside = mix(color.rgb, hazard, 0.35 * watched);
+  vec3 inside = mix(color.rgb, hazard, 0.28 * watched);
   vec3 result = mix(outside, inside, clamp(watched, 0.0, 1.0));
   out_FragColor = vec4(result, color.a);
 }
@@ -150,8 +151,10 @@ export function createAlprCoverageGrade({
   let stage = null;
   let canvas = null;
   let ctx = null;
+  let texture = null;
   let enabled = false;
   let lastSignature = '';
+  let maskRevision = 0;
 
   function ensureCanvas(width, height) {
     if (typeof document === 'undefined') return null;
@@ -159,14 +162,49 @@ export function createAlprCoverageGrade({
     const h = Math.max(1, Math.round(height / 2));
     if (!canvas) {
       canvas = document.createElement('canvas');
-      ctx = canvas.getContext('2d', { alpha: true });
+      ctx = canvas.getContext('2d', { alpha: true, willReadFrequently: true });
     }
     if (!ctx) return null;
     if (canvas.width !== w || canvas.height !== h) {
       canvas.width = w;
       canvas.height = h;
+      // Size change invalidates any cached GPU texture upload.
+      texture = null;
+      lastSignature = '';
     }
     return { width: w, height: h, scaleX: w / width, scaleY: h / height };
+  }
+
+  function uploadTexture() {
+    const context = viewer?.scene?.context;
+    if (!context || !canvas) return canvas;
+    try {
+      if (
+        !texture ||
+        texture.width !== canvas.width ||
+        texture.height !== canvas.height
+      ) {
+        texture?.destroy?.();
+        texture = new Cesium.Texture({
+          context,
+          source: canvas,
+          pixelFormat: Cesium.PixelFormat.RGBA,
+          pixelDatatype: Cesium.PixelDatatype.UNSIGNED_BYTE,
+          sampler: new Cesium.Sampler({
+            wrapS: Cesium.TextureWrap.CLAMP_TO_EDGE,
+            wrapT: Cesium.TextureWrap.CLAMP_TO_EDGE,
+            minificationFilter: Cesium.TextureMinificationFilter.LINEAR,
+            magnificationFilter: Cesium.TextureMagnificationFilter.LINEAR,
+          }),
+        });
+      } else {
+        texture.copyFrom({ source: canvas });
+      }
+      return texture;
+    } catch {
+      // Headless / mock viewers keep the canvas path.
+      return canvas;
+    }
   }
 
   function ensureStage() {
@@ -180,7 +218,7 @@ export function createAlprCoverageGrade({
       canvas = document.createElement('canvas');
       canvas.width = 2;
       canvas.height = 2;
-      ctx = canvas.getContext('2d', { alpha: true });
+      ctx = canvas.getContext('2d', { alpha: true, willReadFrequently: true });
     }
     stage = createStage({
       name: 'godsEyeView_alprCoverageGrade',
@@ -188,7 +226,8 @@ export function createAlprCoverageGrade({
       uniforms: {
         intensity: COVERAGE_DESATURATE,
         time: 0,
-        coverageTexture: () => canvas,
+        // Prefer a live Texture upload; fall back to the canvas itself.
+        coverageTexture: () => texture || canvas,
       },
     });
     stage.enabled = false;
@@ -201,15 +240,31 @@ export function createAlprCoverageGrade({
       if (stage) stage.enabled = false;
       lastSignature = '';
       if (ctx && canvas) ctx.clearRect(0, 0, canvas.width, canvas.height);
+      try {
+        texture?.destroy?.();
+      } catch {
+        /* mock textures */
+      }
+      texture = null;
       return;
     }
     ensureStage();
   }
 
-  /** Advance the subtle watched pulse without rebuilding the mask. */
-  function tick() {
-    if (!enabled || !stage?.enabled) return;
-    if (stage.uniforms?.time !== undefined) stage.uniforms.time = now() / 1000;
+  let lastTickSyncAt = 0;
+
+  /**
+   * Advance the watched pulse and periodically rebuild the screen-space mask
+   * while the camera is moving (moveEnd alone leaves islands lagging mid-orbit).
+   */
+  function tick(syncArgs) {
+    if (!enabled) return;
+    if (stage?.enabled && stage.uniforms?.time !== undefined)
+      stage.uniforms.time = now() / 1000;
+    const t = now();
+    if (t - lastTickSyncAt < 120) return;
+    lastTickSyncAt = t;
+    if (syncArgs) sync(syncArgs);
   }
 
   /**
@@ -290,10 +345,24 @@ export function createAlprCoverageGrade({
         flock: source.flock,
       });
     }
-    const signature = `${surface.width}x${surface.height}:${samples.length}:${records.length}`;
+    // Include a quantized camera pose so pans/orbits rebuild the screen-space mask.
+    const pose = camera.positionWC;
+    const signature = [
+      surface.width,
+      surface.height,
+      samples.length,
+      records.length,
+      Math.round(pose.x / 25),
+      Math.round(pose.y / 25),
+      Math.round(pose.z / 25),
+      Math.round((camera.heading || 0) * 40),
+      Math.round((camera.pitch || 0) * 40),
+    ].join(':');
     if (signature !== lastSignature) {
       paintCoverageMask(ctx, surface.width, surface.height, samples);
+      uploadTexture();
       lastSignature = signature;
+      maskRevision += 1;
     }
     const active = samples.length >= COVERAGE_GRADE_MIN_POINTS;
     stage.enabled = active;
@@ -310,6 +379,7 @@ export function createAlprCoverageGrade({
     stage = null;
     canvas = null;
     ctx = null;
+    texture = null;
     viewer = null;
   }
 

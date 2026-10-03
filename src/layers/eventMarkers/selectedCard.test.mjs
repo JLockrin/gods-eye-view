@@ -6,6 +6,7 @@ import { buildShipwreckCard } from '../shipwrecks/cards.js';
 import { buildVolcanoCard } from '../volcanoes/cards.js';
 import { buildUapCard } from '../uapSightings/cards.js';
 import { buildTornadoCard } from '../tornadoes/cards.js';
+import { buildBibleLocationCard } from '../bibleLocations/cards.js';
 
 test('selected event card presentation matches FIRMS selected-card lane fields', () => {
   assert.deepEqual(selectedEventCardPresentation(), {
@@ -80,7 +81,42 @@ const builders = [
         sourceUrl: 'https://example.test/iem',
       }),
   ],
+  [
+    'bible',
+    () =>
+      buildBibleLocationCard({
+        stableId: 'a15257a',
+        title: 'Jerusalem',
+        event: 'Now it came to pass…',
+        citation: 'Josh 10:1',
+        verses: ['Josh 10:1', 'Josh 10:2'],
+        sourceUrl: 'https://www.openbible.info/geo/ancient/a15257a/jerusalem',
+        eventSource: 'KJV (public domain)',
+      }),
+  ],
 ];
+
+test('bible selected card shows event, citation, source name, and outbound link', () => {
+  const card = buildBibleLocationCard({
+    stableId: 'a631d35',
+    title: 'Golgotha',
+    event:
+      'And when they were come unto a place called Golgotha, that is to say, a place of a skull,',
+    citation: 'Matt 27:33',
+    verses: ['Matt 27:33', 'Mark 15:22', 'Luke 23:33', 'John 19:17'],
+    sourceUrl: 'https://www.openbible.info/geo/ancient/a631d35/golgotha',
+    eventSource: 'KJV (public domain)',
+  });
+  const text = card.details.join(' ');
+  assert.match(text, /Golgotha/);
+  assert.match(text, /Matt 27:33/);
+  assert.match(text, /OpenBible\.info/);
+  assert.match(text, /click card to open/i);
+  assert.equal(
+    card.sourceUrl,
+    'https://www.openbible.info/geo/ancient/a631d35/golgotha',
+  );
+});
 
 for (const [name, build] of builders) {
   test(`${name} selected card emits variant selected for the world-overlay card lane`, () => {

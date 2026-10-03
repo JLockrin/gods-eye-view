@@ -1,5 +1,11 @@
 # Changelog
 
+- Add a **Bible Locations** data layer (OpenBible.info Bible Geocoding,
+  CC BY 4.0). Toggleable under Data Layers → Events; viewport-thinned point
+  markers; selected cards show a short public-domain KJV citation (what
+  scripture records), book/chapter/verse mentions from OpenBible, the source
+  name, and a link to the OpenBible place page. Places without reliable source
+  coordinates are omitted. Share-link token `7`.
 - Public Overpass instances are no longer used by default. Street Traffic
   roads come from TomTom flow tiles, OpenFreeMap vector tiles, or both, chosen
   on the layer row (TomTom / OSM / Hybrid) or with `?trafficRoads=`. With a

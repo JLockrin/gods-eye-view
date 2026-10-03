@@ -6,6 +6,7 @@ import { createShipwreckSource } from '../layers/shipwrecks/source.js';
 import { createTornadoSource } from '../layers/tornadoes/source.js';
 import { createVolcanoSource } from '../layers/volcanoes/source.js';
 import { createUapSightingSource } from '../layers/uapSightings/source.js';
+import { createBibleLocationSource } from '../layers/bibleLocations/source.js';
 
 /** Construct the existing reference feeds independently of application setup. */
 export function createReferenceSources() {
@@ -17,6 +18,7 @@ export function createReferenceSources() {
     tornadoes: createTornadoSource(),
     volcanoes: createVolcanoSource(),
     'uap-sightings': createUapSightingSource(),
+    'bible-locations': createBibleLocationSource(),
     cables: createBundledCableSource(),
   };
 }

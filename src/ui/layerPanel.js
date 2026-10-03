@@ -56,6 +56,7 @@ const PANEL_GROUPS = [
       'tornadoes',
       'volcanoes',
       'uap-sightings',
+      'bible-locations',
     ],
   },
   {
@@ -91,6 +92,7 @@ const PANEL_LABELS = {
   tornadoes: 'Tornadoes & Severe Weather',
   volcanoes: 'Volcanoes & Eruptions',
   'uap-sightings': 'UAP Sighting Reports',
+  'bible-locations': 'Bible Locations',
 };
 
 function panelLabel(layer) {

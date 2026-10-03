@@ -196,6 +196,15 @@ export const DATA_CREDITS = [
       '(<a href="https://doi.org/10.5281/zenodo.1205624" target="_blank" rel="noopener">Zenodo DOI 10.5281/zenodo.1205624</a>, CC BY 4.0) — ' +
       'sighting reports only, not verified phenomena',
   },
+  {
+    key: 'bible-locations',
+    html:
+      'Bible locations: ' +
+      '<a href="https://www.openbible.info/geo/" target="_blank" rel="noopener">OpenBible.info</a> ' +
+      'Bible Geocoding Data ' +
+      '(<a href="https://github.com/openbibleinfo/Bible-Geocoding-Data" target="_blank" rel="noopener">CC BY 4.0</a>) · ' +
+      'short event citations from the King James Version (public domain)',
+  },
   OSM_CREDIT,
   OPENMAPTILES_CREDIT,
   {

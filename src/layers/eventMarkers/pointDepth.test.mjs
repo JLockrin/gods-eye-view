@@ -9,7 +9,10 @@ import { createHistoricPlacesLayer } from '../historicPlaces/index.js';
 import { createVolcanoesLayer } from '../volcanoes/index.js';
 import { createShipwrecksLayer } from '../shipwrecks/index.js';
 import { createTornadoesLayer } from '../tornadoes/index.js';
-import { createSerialKillerPathsLayer } from '../serialKillerPaths/index.js';
+import {
+  createSerialKillerPathsLayer,
+  SERIAL_PATH_POINT_DISABLE_DEPTH_TEST_DISTANCE,
+} from '../serialKillerPaths/index.js';
 
 test('event point markers depth-test against the globe (no through-Earth paint)', () => {
   // Infinity was the through-the-planet bug: far-side points ignored globe depth.
@@ -132,7 +135,12 @@ test('tornado report points also depth-test against the globe', async () => {
   ]);
 });
 
-test('serial-killer path points also depth-test against the globe', async () => {
+test('serial-killer path points use a finite near-camera depth bypass (not Infinity)', async () => {
+  assert.ok(SERIAL_PATH_POINT_DISABLE_DEPTH_TEST_DISTANCE > 0);
+  assert.notEqual(
+    SERIAL_PATH_POINT_DISABLE_DEPTH_TEST_DISTANCE,
+    Number.POSITIVE_INFINITY,
+  );
   const { layer, sources } = harness(createSerialKillerPathsLayer, {
     paths: [],
     sites: [
@@ -154,7 +162,7 @@ test('serial-killer path points also depth-test against the globe', async () => 
   for (const entity of entities) {
     assert.equal(
       pointDepthDistance(entity),
-      EVENT_POINT_DISABLE_DEPTH_TEST_DISTANCE,
+      SERIAL_PATH_POINT_DISABLE_DEPTH_TEST_DISTANCE,
     );
   }
   layer.disable();

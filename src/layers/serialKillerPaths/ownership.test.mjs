@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { createSerialKillerPathsLayer } from './index.js';
 import { buildSerialKillerPathCard } from './cards.js';
-import { EVENT_POINT_DISABLE_DEPTH_TEST_DISTANCE } from '../eventMarkers/pointEventLayer.js';
+import { SERIAL_PATH_POINT_DISABLE_DEPTH_TEST_DISTANCE } from './index.js';
 
 function harness(source) {
   const owners = new Map();
@@ -101,7 +101,12 @@ test('serial-killer path layer registers pick ownership and depth-safe points', 
   assert.ok(point);
   assert.equal(
     propValue(point.point.disableDepthTestDistance),
-    EVENT_POINT_DISABLE_DEPTH_TEST_DISTANCE,
+    SERIAL_PATH_POINT_DISABLE_DEPTH_TEST_DISTANCE,
+  );
+  assert.ok(SERIAL_PATH_POINT_DISABLE_DEPTH_TEST_DISTANCE > 0);
+  assert.notEqual(
+    SERIAL_PATH_POINT_DISABLE_DEPTH_TEST_DISTANCE,
+    Number.POSITIVE_INFINITY,
   );
   const line = entities.find((entity) => entity.polyline);
   assert.ok(line);

@@ -1,5 +1,4 @@
 import * as Cesium from 'cesium';
-import { EVENT_POINT_DISABLE_DEPTH_TEST_DISTANCE } from '../eventMarkers/pointEventLayer.js';
 import {
   SERIAL_KILLER_PATHS_OVERLAY_SOURCE_ID,
   SERIAL_KILLER_PATHS_PICK_PREFIX,
@@ -20,10 +19,19 @@ const CARD_HOST_OPTIONS = Object.freeze({
 const EDUCATIONAL_BLURB =
   'Investigative / educational mapping of public historical cases only — not a live crime feed. City-level pins are approximate; uncertain streets are omitted.';
 
+/**
+ * Photoreal / Google 3D tiles bury clamp-to-ground points when depth-test
+ * distance is 0 (the shared event-point globe policy). A finite near-camera
+ * bypass keeps case pins pickable while inspecting a metro area, while
+ * antipodal / far-side points still depth-test against the globe (unlike
+ * Infinity, which painted through the planet).
+ */
+export const SERIAL_PATH_POINT_DISABLE_DEPTH_TEST_DISTANCE = 250_000;
+
 function pointPixelSize(role) {
-  if (role === 'body') return 12;
-  if (role === 'last_seen') return 9;
-  return 11;
+  if (role === 'body') return 14;
+  if (role === 'last_seen') return 11;
+  return 13;
 }
 
 /** Own chronological serial-case paths (points + ground-clamped polylines). */
@@ -264,7 +272,13 @@ export function createSerialKillerPathsLayer({
                 outlineWidth: isBody ? 2 : 1,
                 heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
                 disableDepthTestDistance:
-                  EVENT_POINT_DISABLE_DEPTH_TEST_DISTANCE,
+                  SERIAL_PATH_POINT_DISABLE_DEPTH_TEST_DISTANCE,
+                scaleByDistance: new Cesium.NearFarScalar(
+                  200,
+                  1.35,
+                  120000,
+                  0.55,
+                ),
               },
               properties: {
                 stableId: row.stableId,

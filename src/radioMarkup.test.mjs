@@ -184,7 +184,9 @@ test('no unchanged Realtime tool definition drifts silently', () => {
     'analyst_query',
     'next_iss_pass',
     'next_satellite_pass',
-    // Local ADS-B adds one layer enum value and its common-name mapping.
+    // Local ADS-B / sex-offenders / crime-incidents add layer enum values and
+    // common-name mapping on set_layer_visibility; show_data_layers_menu also
+    // gained the two new layer ids (digest below re-derived).
     'set_layer_visibility',
   ]);
   const unchanged = realtimeTools()
@@ -201,8 +203,8 @@ test('no unchanged Realtime tool definition drifts silently', () => {
     .update(JSON.stringify(unchanged))
     .digest('hex')
     .slice(0, 16);
-  // Analyst additions and ISS wording correction are explicitly excluded above; all other tool definitions retain their pin.
-  assert.equal(digest, '91935845ef2598b1', 'an unchanged Realtime tool definition drifted');
+  // Re-derived after show_data_layers_menu gained sex-offenders / crime-incidents.
+  assert.equal(digest, 'cc93683f2a031155', 'an unchanged Realtime tool definition drifted');
 });
 
 test('Radio volume and mission speed share the Sharpen slider visual language', () => {

@@ -27,10 +27,10 @@ test('the complete Realtime tool payload pins the additive analyst, satellite, L
     .digest('hex');
   assert.equal(
     digest,
-    // Re-derived for the five additive event-layer visibility/query enums
-    // (aviation, shipwrecks, tornadoes, volcanoes, UAP); the separate sonar
-    // tool is excluded above.
-    'bd9b266db1039eb48f125c6cbb4b88e1f9921228b0b8330732b385d68b0e0d73',
+    // Re-derived for the additive event-layer visibility/query enums
+    // (aviation, shipwrecks, tornadoes, volcanoes, UAP, Bible locations);
+    // the separate sonar tool is excluded above.
+    '1a616cab3514aa19ae466cd99639600b1dfe394bb0cec7ab29f74c507a4f64b7',
   );
 });
 
@@ -102,6 +102,7 @@ test('all legacy action arguments are byte-identical after removing the delibera
     'tornadoes',
     'volcanoes',
     'uap-sightings',
+    'bible-locations',
   ];
   layers.enum = layers.enum.filter((key) => !additiveLayers.includes(key));
   // Local ADS-B is an additive set_layer_visibility enum value.

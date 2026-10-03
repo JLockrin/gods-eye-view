@@ -20,6 +20,7 @@ Open the local URL Vite prints (typically `http://localhost:5173`). Open **Data 
 | Tornadoes & Severe Weather | `tornadoes`          | Recent tornado LSR points + warning/outlook polygons when active   | Live IEM + SPC. Quiet weather days may show only outlook polygons or nothing                                     |
 | Volcanoes & Eruptions      | `volcanoes`          | U.S. volcanoes; elevated alerts emphasized                         | Live USGS via same-origin `/api/volcanoes` proxy (browser CORS-safe)                                             |
 | UAP Sighting Reports       | `uap-sightings`      | Historical report points; cards say **unverified sighting report** | Bundled CC BY 4.0 subset; never labeled as verified phenomena                                                    |
+| Bible Locations            | `bible-locations`    | Point markers for biblical places; card shows KJV citation, verses, OpenBible link | Bundled OpenBible.info CC BY 4.0 pack; zoom into the Levant / eastern Mediterranean                              |
 
 ## Re-verify the two excellence blockers
 
@@ -34,13 +35,14 @@ Open the local URL Vite prints (typically `http://localhost:5173`). Open **Data 
 ### 2) Selection detail cards must appear
 
 1. Close the layers panel (cards must not depend on it being open).
-2. Click an aviation, shipwreck, volcano, UAP, or tornado **point** marker.
-3. A world-overlay selected detail card should show what / when / where / source metadata.
+2. Click an aviation, shipwreck, volcano, UAP, tornado, or Bible **point** marker.
+3. A world-overlay selected detail card should show what / when / where / source metadata between the left and right HUD columns (not under them).
 4. UAP cards must still say **unverified sighting report** / not a verified phenomenon.
+5. Bible cards must show the event citation, book/chapter/verse mentions, **OpenBible.info**, and an outbound place-page link.
 
 ## Share links
 
-Tokens: aviation `0`, shipwrecks `3`, tornadoes `4`, volcanoes `5`, uap `6`. Enabling a layer and copying the share URL should restore that toggle.
+Tokens: aviation `0`, shipwrecks `3`, tornadoes `4`, volcanoes `5`, uap `6`, bible `7`. Enabling a layer and copying the share URL should restore that toggle.
 
 ## Automated tests
 
@@ -51,6 +53,7 @@ node --test \
   src/layers/tornadoes/*.test.mjs \
   src/layers/volcanoes/*.test.mjs \
   src/layers/uapSightings/*.test.mjs \
+  src/layers/bibleLocations/*.test.mjs \
   src/layers/eventMarkers/*.test.mjs \
   src/data/volcanoesProxy.test.mjs \
   src/app/constructCatalog.test.mjs \
@@ -68,3 +71,4 @@ npm run check:boundaries
 - **Tornadoes:** Historical multi-decade track polylines from SPC svrgis are not bundled (size); recent reports/warnings/outlooks are live.
 - **Volcanoes:** Global Smithsonian GVP Holocene eruption WFS was not relied on (availability); USGS U.S. status + elevated notices are live through `/api/volcanoes`.
 - **UAP:** Live NUFORC pages are not scraped (terms). The layer uses a licensed Zenodo CC BY 4.0 geocoded compilation subset and labels every feature as an unverified sighting report.
+- **Bible locations:** Uses OpenBible.info's CC BY 4.0 geocoding dataset (not invented coordinates/events). Event lines are short public-domain KJV citations of the primary verse OpenBible lists for the place; copyrighted modern Bible text is not scraped.

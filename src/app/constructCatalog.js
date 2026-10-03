@@ -29,6 +29,7 @@ import { createApplicationShipwrecks } from './layers/shipwrecks.js';
 import { createApplicationTornadoes } from './layers/tornadoes.js';
 import { createApplicationVolcanoes } from './layers/volcanoes.js';
 import { createApplicationUapSightings } from './layers/uapSightings.js';
+import { createApplicationBibleLocations } from './layers/bibleLocations.js';
 import { createApplicationCables } from './layers/submarineCables.js';
 import { createInfrastructureLayers } from '../data/infrastructure.js';
 import { localGeoJsonServices } from './localGeojsonServices.js';
@@ -64,6 +65,7 @@ const SOURCE_METHODS = Object.freeze({
   tornadoes: ['getSnapshot'],
   volcanoes: ['getSnapshot'],
   'uap-sightings': ['getSnapshot'],
+  'bible-locations': ['getSnapshot'],
   cables: ['fetch'],
 });
 
@@ -164,6 +166,9 @@ export function createApplicationCatalog({
         createApplicationTornadoes({ source: sources.tornadoes }),
         createApplicationVolcanoes({ source: sources.volcanoes }),
         createApplicationUapSightings({ source: sources['uap-sightings'] }),
+        createApplicationBibleLocations({
+          source: sources['bible-locations'],
+        }),
         createApplicationAlpr({ surface, source: sources.alpr }),
         satellites,
         createApplicationLaunches({ source: sources.launches, satellites }),

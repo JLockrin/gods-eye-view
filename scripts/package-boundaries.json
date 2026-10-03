@@ -1342,6 +1342,7 @@
       "src/app/layers/cctv.js",
       "src/app/layers/earthquakes.js",
       "src/app/layers/uapSightings.js",
+      "src/app/layers/bibleLocations.js",
       "src/app/layers/volcanoes.js",
       "src/app/layers/tornadoes.js",
       "src/app/layers/shipwrecks.js",
@@ -1423,6 +1424,7 @@
       "src/data/detectionRenderDemand.js",
       "src/data/earthquakes.js",
       "src/data/uapSightings.js",
+      "src/data/bibleLocations.js",
       "src/data/volcanoes.js",
       "src/data/tornadoes.js",
       "src/data/shipwrecks.js",
@@ -1574,6 +1576,10 @@
       "src/layers/uapSightings/records.js",
       "src/layers/uapSightings/source.js",
       "src/layers/uapSightings/index.js",
+      "src/layers/bibleLocations/cards.js",
+      "src/layers/bibleLocations/records.js",
+      "src/layers/bibleLocations/source.js",
+      "src/layers/bibleLocations/index.js",
       "src/layers/volcanoes/cards.js",
       "src/layers/volcanoes/records.js",
       "src/layers/volcanoes/source.js",
@@ -2109,6 +2115,7 @@
       "src/app/layers/cctv.js",
       "src/app/layers/earthquakes.js",
       "src/app/layers/uapSightings.js",
+      "src/app/layers/bibleLocations.js",
       "src/app/layers/volcanoes.js",
       "src/app/layers/tornadoes.js",
       "src/app/layers/shipwrecks.js",
@@ -2265,6 +2272,10 @@
       "src/layers/uapSightings/records.js",
       "src/layers/uapSightings/source.js",
       "src/layers/uapSightings/index.js",
+      "src/layers/bibleLocations/cards.js",
+      "src/layers/bibleLocations/records.js",
+      "src/layers/bibleLocations/source.js",
+      "src/layers/bibleLocations/index.js",
       "src/layers/volcanoes/cards.js",
       "src/layers/volcanoes/records.js",
       "src/layers/volcanoes/source.js",
@@ -2914,6 +2925,8 @@
       "src/layers/perimeters/records.js",
       "src/layers/uapSightings/records.js",
       "src/layers/uapSightings/source.js",
+      "src/layers/bibleLocations/records.js",
+      "src/layers/bibleLocations/source.js",
       "src/layers/volcanoes/records.js",
       "src/layers/volcanoes/source.js",
       "src/layers/tornadoes/records.js",
@@ -3244,6 +3257,26 @@
     "modules": [
       "src/layers/uapSightings/records.js",
       "src/layers/uapSightings/source.js"
+    ],
+    "external": []
+  },
+  "bible-locations": {
+    "exports": ["./layers/bible-locations"],
+    "modules": [
+      "src/layers/bibleLocations/index.js",
+      "src/layers/bibleLocations/source.js",
+      "src/layers/bibleLocations/records.js",
+      "src/layers/bibleLocations/cards.js",
+      "src/layers/eventMarkers/pointEventLayer.js",
+      "src/layers/eventMarkers/selectedCard.js"
+    ],
+    "external": ["cesium"]
+  },
+  "bible-locations-source": {
+    "exports": ["./layers/bible-locations/source"],
+    "modules": [
+      "src/layers/bibleLocations/records.js",
+      "src/layers/bibleLocations/source.js"
     ],
     "external": []
   }

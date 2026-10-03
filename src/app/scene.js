@@ -7,6 +7,7 @@ import {
 import { registerDataCredits } from '../data/dataCredits.js';
 import { configureCreditKeyboardAccess } from '../creditKeyboard.js';
 import { MapStackController } from '../mapStackController.js';
+import { installMapStackCameraGestures } from '../maps/cameraGestures.js';
 import { loadPhotorealisticTileset } from '../mapStartup.js';
 import { initLogoGaze } from '../logoGaze.js';
 import {
@@ -55,6 +56,8 @@ export async function createApplicationScene({
     uninstallRenderGovernor(viewer);
     if (!viewer.isDestroyed()) viewer.destroy();
   });
+  // Pinch must register before map-stack gestures capture zoom baselines so
+  // Ctrl+wheel remains part of the restored non-photoreal zoom set.
   defer(installTrackpadPinchZoom(viewer));
   registerDataCredits(viewer, credits);
   configureCreditKeyboardAccess(document);
@@ -117,6 +120,8 @@ export async function createApplicationScene({
   await mapStackController.setStack(tileset ? 'photoreal' : 'esri-imagery', {
     silent: true,
   });
+  // After pinch zoom and the initial stack settle: Google 3D right-drag orbits.
+  defer(installMapStackCameraGestures(viewer, mapStackController));
 
   signal.throwIfAborted();
   return { viewer, tileset, mapStackController, operations };

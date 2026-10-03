@@ -1275,7 +1275,7 @@ test('UI exclusions stay per-rect: overlapping chrome never merges into a boundi
     height: 300,
     dpr: 1,
     occluders: [
-      { id: 'left-panel-stack', rect: chrome.left },
+      { id: 'data-panel', rect: chrome.left },
       { id: 'command-dock', rect: chrome.bottom },
     ],
   });
@@ -1322,18 +1322,18 @@ test('UI exclusions ignore chrome the user cannot see', () => {
     height: 300,
     dpr: 1,
     occluders: [
-      { id: 'left-panel-stack', rect: { left: 0, top: 0, width: 400, height: 300 }, hidden: true },
+      { id: 'data-panel', rect: { left: 0, top: 0, width: 400, height: 300 }, hidden: true },
       {
         id: 'command-dock',
         rect: { left: 0, top: 0, width: 400, height: 300 },
         style: { display: 'none' },
       },
       {
-        id: 'right-context-rail',
+        id: 'pp-toggles',
         rect: { left: 0, top: 0, width: 400, height: 300 },
         style: { visibility: 'hidden' },
       },
-      { id: 'pp-toggles', rect: { left: 0, top: 0, width: 0, height: 0 } },
+      { id: 'scene-panel', rect: { left: 0, top: 0, width: 0, height: 0 } },
     ],
   });
   initWorldOverlay(env.viewer);
@@ -1413,7 +1413,7 @@ test('a placement is only ever kept under chrome that composites ABOVE the host'
   const viewport = { left: 0, top: 0, width: 400, height: 300 };
   // Above the host: unplaceable is still safe, so the card is kept and the panel
   // simply covers it — the behaviour that fixed the cockpit blackout.
-  assert.equal(paintedUnder([{ id: 'left-panel-stack', rect: viewport }]), 1,
+  assert.equal(paintedUnder([{ id: 'data-panel', rect: viewport }]), 1,
     'chrome above the host keeps the soft preference');
   // Below the host: no placement may overlap it, so the entry is vetoed instead
   // of painting over HUD text. `.hud-top-left` is nested in #intel-hud, so this

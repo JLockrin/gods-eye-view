@@ -110,18 +110,18 @@ test('serial-killer path layer registers pick ownership and depth-safe points', 
   const line = entities.find((entity) => entity.polyline);
   assert.ok(line);
   assert.equal(propValue(line.polyline.clampToGround), true);
-  assert.match(
-    buildSerialKillerPathCard({
-      title: '#4 kill / body · Virginia & Rachelle Temple',
-      caseName: 'Alton Coleman',
-      role: 'kill_and_body',
-      approximate: true,
-      precision: 'city',
-      placeLabel: 'Toledo, OH',
-      attribution: 'Ohio Supreme Court',
-    }).details.join(' '),
-    /educational mapping/i,
-  );
+  const card = buildSerialKillerPathCard({
+    title: '#4 kill / body · Virginia & Rachelle Temple',
+    caseName: 'Alton Coleman',
+    role: 'kill_and_body',
+    approximate: true,
+    precision: 'city',
+    placeLabel: 'Toledo, OH',
+    attribution: 'Ohio Supreme Court',
+  });
+  assert.match(card.details.join(' '), /educational mapping/i);
+  assert.equal(card.maxWidth, 420);
+  assert.equal(card.viewportMargin, 230);
   const controls = layer.getRowControls();
   assert.equal(controls.info, 'edu');
   assert.ok(controls.legend.length >= 3);

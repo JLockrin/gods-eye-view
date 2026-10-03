@@ -73,6 +73,11 @@ export function buildSerialKillerPathCard(row) {
     gapPx: 15,
     verticalOnly: true,
     placement: 'above',
+    // Keep the selected strip inside the open map gap between the left DATA
+    // LAYERS/SCENES rail and the right DISPLAY/SCOPE rail. Long attribution
+    // lines wrap inside this width instead of stretching under both columns.
+    maxWidth: 420,
+    viewportMargin: 230,
     sourceUrl: row.sourceUrl || null,
   };
 }

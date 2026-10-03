@@ -102,8 +102,16 @@ export const WORLD_OVERLAY_OCCLUDER_SELECTORS = Object.freeze([
   '#top-center-actions',
   '#traffic-sync-chip',
   '#cctv-sync-chip',
-  '#left-panel-stack',
-  '#right-context-rail',
+  // Solid panel chrome only — not `#left-panel-stack` / `#right-context-rail`.
+  // Those wrappers stay wider than their collapsed children and were stealing
+  // the open map corridor between the rails (selected detail cards rendered
+  // underneath DATA LAYERS / SCENES / DISPLAY).
+  '#data-panel',
+  '#scene-panel',
+  '#cctv-panel',
+  '#global-context-panel',
+  '#weather-panel',
+  '#recent-imagery-panel',
   '.weather-summary',
   '#pp-toggles',
   '#command-dock',
@@ -574,6 +582,9 @@ export function normalizeOverlayEntry(sourceId, entry) {
     viewportMargin: Number.isFinite(Number(entry.viewportMargin))
       ? Math.max(0, Number(entry.viewportMargin))
       : 4,
+    maxWidth: Number.isFinite(Number(entry.maxWidth))
+      ? Math.max(8, Number(entry.maxWidth))
+      : 0,
     viewportPadding: Number.isFinite(Number(entry.viewportPadding))
       ? Math.max(0, Number(entry.viewportPadding))
       : 64,
@@ -2005,7 +2016,20 @@ function snapshotAndProject(entry, source, viewProjection, keyhole) {
   )
     return null;
 
+  // Cap authored maxWidth against the live viewport so a selected card can
+  // still sit in the open corridor between the left/right rails. Restore the
+  // authored value afterward — permanent shrink would latch to the smallest
+  // canvas seen during the host lifetime.
+  const authoredMaxWidth = entry.maxWidth;
+  if (authoredMaxWidth > 0) {
+    const corridorCap = Math.max(
+      160,
+      _canvasWidth - 2 * Math.max(entry.viewportMargin, 8),
+    );
+    entry.maxWidth = Math.min(authoredMaxWidth, corridorCap);
+  }
   measureOverlayEntry(_ctx, entry, record.layout);
+  entry.maxWidth = authoredMaxWidth;
   record.placementInput.anchorX = record.screen.x;
   record.placementInput.anchorY = record.screen.y;
   record.placementInput.width = record.layout.w * record.paintScale;

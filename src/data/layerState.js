@@ -659,6 +659,11 @@ export const LAYER_STATE_REGISTRY = Object.freeze([
     optionOwner: 'satellites',
   }),
   Object.freeze({
+    id: 'serial-killer-paths',
+    token: '00',
+    disposition: 'enabled-only',
+  }),
+  Object.freeze({
     id: 'shipwrecks',
     token: '3',
     disposition: 'enabled-only',

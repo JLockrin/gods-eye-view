@@ -12,6 +12,7 @@ import {
   installWorldOverlayFontInvalidation,
   measureOverlayEntry,
   measureWorldOverlayText,
+  wrapWorldOverlayText,
   paintCard,
   paintDetectionCallout,
   paintLabel,
@@ -448,6 +449,57 @@ test('tracked painter preserves centered multi-line readout metrics', () => {
     ctx.calls.filter(([name]) => name === 'fillText').map(([, text]) => text),
     ['UAL123', 'FL350 · 451 kts', 'SFO → JFK'],
   );
+});
+
+test('maxWidth wraps long detail lines so selected cards stay rail-corridor sized', () => {
+  const ctx = mockContext();
+  const long =
+    'Ohio Supreme Court: classmate saw Storey at May & Morgan with a man identified as Coleman. Intersection geocoded approximately from OSM street centerlines.';
+  const entry = {
+    variant: 'selected',
+    selected: true,
+    cardStyle: 'tactical',
+    title: '#5 last with suspects · Tonnie Storey',
+    details: [
+      'Alton Coleman · 1984 Midwest crime spree (with Debra Brown) · 1984',
+      long,
+      'Investigative / educational mapping of public historical cases — not a live crime feed.',
+    ],
+    accent: '#0f766e',
+    maxWidth: 420,
+  };
+  entry._overlayLayout = measureOverlayEntry(ctx, entry, {});
+  assert.ok(entry._overlayLayout.w <= 420, `card width ${entry._overlayLayout.w} exceeds maxWidth`);
+  assert.ok(
+    entry._overlayLayout.detailLines.length > entry.details.length,
+    'long attribution/summary lines must wrap into additional detail rows',
+  );
+  assert.deepEqual(
+    wrapWorldOverlayText(ctx, 'short', WORLD_OVERLAY_STYLE.fontDetail, 420),
+    ['short'],
+  );
+  paintTacticalCard(
+    ctx,
+    entry,
+    placementVariants({
+      anchorX: 400,
+      anchorY: 220,
+      width: entry._overlayLayout.w,
+      height: entry._overlayLayout.h,
+      viewportWidth: 1200,
+      viewportHeight: 800,
+      gap: 15,
+      verticalOnly: true,
+      viewportMargin: 230,
+    })[0],
+    1,
+  );
+  const painted = ctx.calls
+    .filter(([name]) => name === 'fillText')
+    .map(([, text]) => text)
+    .join(' ');
+  assert.match(painted, /May & Morgan/);
+  assert.match(painted, /educational mapping/);
 });
 
 test('shared tactical painter preserves FIRMS card metrics and top-rule treatment', () => {

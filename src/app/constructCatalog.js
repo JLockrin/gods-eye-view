@@ -32,6 +32,7 @@ import { createApplicationUapSightings } from './layers/uapSightings.js';
 import { createApplicationTsunamis } from './layers/tsunamis.js';
 import { createApplicationGdeltGeo } from './layers/gdeltGeo.js';
 import { createApplicationHistoricPlaces } from './layers/historicPlaces.js';
+import { createApplicationSerialKillerPaths } from './layers/serialKillerPaths.js';
 import { createApplicationCables } from './layers/submarineCables.js';
 import { createInfrastructureLayers } from '../data/infrastructure.js';
 import { localGeoJsonServices } from './localGeojsonServices.js';
@@ -70,6 +71,7 @@ const SOURCE_METHODS = Object.freeze({
   tsunamis: ['getSnapshot'],
   'gdelt-geo': ['getSnapshot'],
   'historic-places': ['getSnapshot'],
+  'serial-killer-paths': ['getSnapshot'],
   cables: ['fetch'],
 });
 
@@ -174,6 +176,9 @@ export function createApplicationCatalog({
         createApplicationGdeltGeo({ source: sources['gdelt-geo'] }),
         createApplicationHistoricPlaces({
           source: sources['historic-places'],
+        }),
+        createApplicationSerialKillerPaths({
+          source: sources['serial-killer-paths'],
         }),
         createApplicationAlpr({ surface, source: sources.alpr }),
         satellites,

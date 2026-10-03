@@ -217,6 +217,13 @@ export const DATA_CREDITS = [
       '<a href="https://www.nps.gov/subjects/nationalregister/data-downloads.htm" target="_blank" rel="noopener">National Park Service National Register of Historic Places</a>' +
       ' unrestricted spatial points (U.S. public domain)',
   },
+  {
+    key: 'serial-killer-paths',
+    html:
+      'Historical serial cases (investigative/educational): public court opinions and news archives — ' +
+      '<a href="https://www.supremecourt.ohio.gov/rod/docs/pdf/0/2016/2016-ohio-8025.pdf" target="_blank" rel="noopener">State v. Sowell, 2016-Ohio-8025</a>' +
+      '; Ohio Supreme Court <em>State v. Coleman</em> (1988/1989). Approximate city pins documented in-layer; not a live crime feed.',
+  },
   OSM_CREDIT,
   OPENMAPTILES_CREDIT,
   {

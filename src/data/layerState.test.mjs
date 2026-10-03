@@ -199,8 +199,8 @@ function encode(state) {
 
 test('production registry is exact, canonical, and rejects incomplete contracts', async () => {
   assert.equal(validateLayerStateRegistry(), true);
-  assert.equal(REGISTERED_LAYER_IDS.length, 36);
-  assert.equal(new Set(REGISTERED_LAYER_IDS).size, 36);
+  assert.equal(REGISTERED_LAYER_IDS.length, 37);
+  assert.equal(new Set(REGISTERED_LAYER_IDS).size, 37);
   assert.ok(REGISTERED_LAYER_IDS.includes('transit'));
   assert.ok(REGISTERED_LAYER_IDS.includes('aviation-accidents'));
   assert.ok(REGISTERED_LAYER_IDS.includes('shipwrecks'));
@@ -210,6 +210,7 @@ test('production registry is exact, canonical, and rejects incomplete contracts'
   assert.ok(REGISTERED_LAYER_IDS.includes('tsunamis'));
   assert.ok(REGISTERED_LAYER_IDS.includes('gdelt-geo'));
   assert.ok(REGISTERED_LAYER_IDS.includes('historic-places'));
+  assert.ok(REGISTERED_LAYER_IDS.includes('serial-killer-paths'));
   assert.deepEqual(REGISTERED_LAYER_IDS, [...REGISTERED_LAYER_IDS].sort());
   assert.deepEqual(LEGACY_LAYER_STATE_TOKENS, {
     'ais-live-vessels': 'a',
@@ -255,22 +256,23 @@ test('production registry is exact, canonical, and rejects incomplete contracts'
   assert.equal(LAYER_STATE_TOKEN_RESERVATIONS.tsunamis, '7');
   assert.equal(LAYER_STATE_TOKEN_RESERVATIONS['gdelt-geo'], '8');
   assert.equal(LAYER_STATE_TOKEN_RESERVATIONS['historic-places'], '9');
-  assert.equal(nextLayerStateToken(), '00');
+  assert.equal(LAYER_STATE_TOKEN_RESERVATIONS['serial-killer-paths'], '00');
+  assert.equal(nextLayerStateToken(), '01');
   assert.equal(
     nextLayerStateToken({
       ...LAYER_STATE_TOKEN_RESERVATIONS,
-      alpha: '00',
-      bravo: '01',
+      alpha: '01',
+      bravo: '02',
     }),
-    '02',
+    '03',
   );
   const digitsExhausted = {
     ...LAYER_STATE_TOKEN_RESERVATIONS,
   };
-  assert.equal(nextLayerStateToken(digitsExhausted), '00');
+  assert.equal(nextLayerStateToken(digitsExhausted), '01');
   assert.equal(
-    nextLayerStateToken({ ...digitsExhausted, retired: '00', used: '01' }),
-    '02',
+    nextLayerStateToken({ ...digitsExhausted, retired: '01', used: '02' }),
+    '03',
   );
   assert.equal(
     nextLayerStateToken({
@@ -315,7 +317,7 @@ test('production registry is exact, canonical, and rejects incomplete contracts'
   assert.equal(
     validateLayerStateAllocations(
       LAYER_STATE_TOKEN_RESERVATIONS,
-      { ...LAYER_STATE_TOKEN_RESERVATIONS, future: '00', next: '01' },
+      { ...LAYER_STATE_TOKEN_RESERVATIONS, future: '01', next: '02' },
     ),
     true,
   );
@@ -323,39 +325,39 @@ test('production registry is exact, canonical, and rejects incomplete contracts'
     () =>
       validateLayerStateAllocations(LAYER_STATE_TOKEN_RESERVATIONS, {
         ...LAYER_STATE_TOKEN_RESERVATIONS,
-        future: '01',
+        future: '02',
       }),
-    /next free token 00/,
+    /next free token 01/,
   );
   const beforeFirstPair = { ...LAYER_STATE_TOKEN_RESERVATIONS };
-  delete beforeFirstPair['historic-places'];
+  delete beforeFirstPair['serial-killer-paths'];
   assert.equal(
     validateLayerStateAllocations(beforeFirstPair, {
       ...beforeFirstPair,
-      'historic-places': '9',
-      futurePair: '00',
+      'serial-killer-paths': '00',
+      futurePair: '01',
     }),
     true,
   );
   assert.equal(
     validateLayerStateAllocations(digitsExhausted, {
       ...digitsExhausted,
-      pairB: '01',
-      pairA: '00',
+      pairB: '02',
+      pairA: '01',
     }),
     true,
   );
   assert.throws(
     () =>
       validateLayerStateAllocations(
-        { ...LAYER_STATE_TOKEN_RESERVATIONS, merged: '00' },
+        { ...LAYER_STATE_TOKEN_RESERVATIONS, merged: '01' },
         {
           ...LAYER_STATE_TOKEN_RESERVATIONS,
-          merged: '00',
-          competing: '00',
+          merged: '01',
+          competing: '01',
         },
       ),
-    /next free token 01/,
+    /next free token 02/,
   );
   assert.throws(
     () => validateLayerStateAllocations({ future: '00' }, { future: '01' }),
@@ -511,7 +513,7 @@ test('unknown enabled-layer tokens reject the payload instead of becoming an emp
 });
 
 test('malformed enabled-layer lists reject the entire payload', () => {
-  for (const value of ['.c', 'c.', 'c..e', 'c.c', '00', 'c.00']) {
+  for (const value of ['.c', 'c.', 'c..e', 'c.c', 'zz', 'c.zz']) {
     assert.equal(
       decodeLayerStateParams(new URLSearchParams(`v=2&l=${value}`)),
       null,

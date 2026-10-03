@@ -9,6 +9,7 @@ import { createUapSightingSource } from '../layers/uapSightings/source.js';
 import { createTsunamiSource } from '../layers/tsunamis/source.js';
 import { createGdeltGeoSource } from '../layers/gdeltGeo/source.js';
 import { createHistoricPlacesSource } from '../layers/historicPlaces/source.js';
+import { createSerialKillerPathSource } from '../layers/serialKillerPaths/source.js';
 
 /** Construct the existing reference feeds independently of application setup. */
 export function createReferenceSources() {
@@ -23,6 +24,7 @@ export function createReferenceSources() {
     tsunamis: createTsunamiSource(),
     'gdelt-geo': createGdeltGeoSource(),
     'historic-places': createHistoricPlacesSource(),
+    'serial-killer-paths': createSerialKillerPathSource(),
     cables: createBundledCableSource(),
   };
 }

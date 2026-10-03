@@ -28,9 +28,9 @@ test('the complete Realtime tool payload pins the additive analyst, satellite, L
   assert.equal(
     digest,
     // Re-derived for the additive event-layer visibility/query enums
-    // (aviation, shipwrecks, tornadoes, volcanoes, UAP, tsunamis, GDELT, NRHP);
-    // the separate sonar tool is excluded above.
-    '7b26d3b9474cb873985b335447dcbcab23cbdfe79d8497d02c931a881fac95ed',
+    // (aviation, shipwrecks, tornadoes, volcanoes, UAP, tsunamis, GDELT, NRHP,
+    // serial-killer-paths); the separate sonar tool is excluded above.
+    '5224acaccb64dc0ea347611288a614d01f78a5e03f0f567818f7d6eaab2b1df3',
   );
 });
 
@@ -105,6 +105,7 @@ test('all legacy action arguments are byte-identical after removing the delibera
     'tsunamis',
     'gdelt-geo',
     'historic-places',
+    'serial-killer-paths',
   ];
   layers.enum = layers.enum.filter((key) => !additiveLayers.includes(key));
   // Local ADS-B is an additive set_layer_visibility enum value.

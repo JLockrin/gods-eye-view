@@ -9,6 +9,10 @@ import { createHistoricPlacesLayer } from '../historicPlaces/index.js';
 import { createVolcanoesLayer } from '../volcanoes/index.js';
 import { createShipwrecksLayer } from '../shipwrecks/index.js';
 import { createTornadoesLayer } from '../tornadoes/index.js';
+import {
+  createSerialKillerPathsLayer,
+  SERIAL_PATH_POINT_DISABLE_DEPTH_TEST_DISTANCE,
+} from '../serialKillerPaths/index.js';
 
 test('event point markers depth-test against the globe (no through-Earth paint)', () => {
   // Infinity was the through-the-planet bug: far-side points ignored globe depth.
@@ -83,7 +87,10 @@ async function assertDepthTestedPoints(createLayer, rows) {
   const entities = [...sources[0].entities.values].filter(
     (entity) => entity.point,
   );
-  assert.ok(entities.length >= 1, `${layer.id} should render at least one point`);
+  assert.ok(
+    entities.length >= 1,
+    `${layer.id} should render at least one point`,
+  );
   for (const entity of entities) {
     assert.equal(
       pointDepthDistance(entity),
@@ -126,4 +133,37 @@ test('tornado report points also depth-test against the globe', async () => {
       title: 'Tornado report',
     },
   ]);
+});
+
+test('serial-killer path points follow sparse surface-marker depth policy', async () => {
+  // Installations/FIRMS/cyclones use Infinity so photoreal tiles do not bury pins.
+  assert.equal(
+    SERIAL_PATH_POINT_DISABLE_DEPTH_TEST_DISTANCE,
+    Number.POSITIVE_INFINITY,
+  );
+  const { layer, sources } = harness(createSerialKillerPathsLayer, {
+    paths: [],
+    sites: [
+      {
+        stableId: 'probe',
+        lat: 41.47,
+        lon: -81.6,
+        title: 'Probe',
+        role: 'kill_and_body',
+        caseColor: '#b45309',
+      },
+    ],
+  });
+  await layer.update();
+  const entities = [...sources[0].entities.values].filter(
+    (entity) => entity.point,
+  );
+  assert.ok(entities.length >= 1);
+  for (const entity of entities) {
+    assert.equal(
+      pointDepthDistance(entity),
+      SERIAL_PATH_POINT_DISABLE_DEPTH_TEST_DISTANCE,
+    );
+  }
+  layer.disable();
 });

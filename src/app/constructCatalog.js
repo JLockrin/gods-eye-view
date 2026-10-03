@@ -24,6 +24,8 @@ import { createApplicationAwareness } from './layers/militaryAwareness.js';
 import { createApplicationFirms } from './layers/firms.js';
 import { createApplicationEarthquakes } from './layers/earthquakes.js';
 import { createApplicationFirePerimeters } from './layers/perimeters.js';
+import { createApplicationSexOffenders } from './layers/sexOffenders.js';
+import { createApplicationCrimeIncidents } from './layers/crimeIncidents.js';
 import { createApplicationCables } from './layers/submarineCables.js';
 import { createInfrastructureLayers } from '../data/infrastructure.js';
 import { localGeoJsonServices } from './localGeojsonServices.js';
@@ -54,6 +56,8 @@ const SOURCE_METHODS = Object.freeze({
   cyclones: ['getSnapshot'],
   earthquakes: ['getSnapshot'],
   'fire-perimeters': ['getSnapshot'],
+  'sex-offenders': ['getSnapshot'],
+  'crime-incidents': ['getSnapshot'],
   cables: ['fetch'],
 });
 
@@ -146,6 +150,10 @@ export function createApplicationCatalog({
         createApplicationEarthquakes({ source: sources.earthquakes }),
         createApplicationFirePerimeters({
           source: sources['fire-perimeters'],
+        }),
+        createApplicationSexOffenders({ source: sources['sex-offenders'] }),
+        createApplicationCrimeIncidents({
+          source: sources['crime-incidents'],
         }),
         createApplicationAlpr({ surface, source: sources.alpr }),
         satellites,

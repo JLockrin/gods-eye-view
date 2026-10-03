@@ -46,7 +46,14 @@ const PANEL_GROUPS = [
   },
   {
     label: 'Events',
-    ids: ['rocket-launches', 'earthquakes', 'local-firms', 'fire-perimeters'],
+    ids: [
+      'rocket-launches',
+      'earthquakes',
+      'local-firms',
+      'fire-perimeters',
+      'sex-offenders',
+      'crime-incidents',
+    ],
   },
   {
     label: 'Weather',
@@ -76,6 +83,8 @@ const PANEL_LABELS = {
   'alpr-cameras': 'Mapped ALPR Cameras',
   'local-datacenters': 'Data Centers',
   'local-firms': 'Active Fires',
+  'sex-offenders': 'Registered Sex Offenders',
+  'crime-incidents': 'Homicides & Other Crimes',
 };
 
 function panelLabel(layer) {

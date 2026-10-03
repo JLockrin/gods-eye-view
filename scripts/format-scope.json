@@ -584,6 +584,8 @@
   "src/maps/credits.js",
   "src/maps/defaultSources.js",
   "src/maps/google3d.js",
+  "src/maps/cameraGestures.test.mjs",
+  "src/maps/cameraGestures.js",
   "src/maps/imagery.js",
   "src/maps/registry.js",
   "src/maps/terrain.js",
@@ -914,5 +916,6 @@
   "src/data/tornadoes.js",
   "src/data/volcanoes.js",
   "src/data/uapSightings.js",
-  "docs/EVENT_LAYERS_VERIFICATION.md"
+  "docs/EVENT_LAYERS_VERIFICATION.md",
+  "scripts/qa-photoreal-right-drag.mjs"
 ]

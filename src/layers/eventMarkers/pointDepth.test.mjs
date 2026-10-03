@@ -135,9 +135,9 @@ test('tornado report points also depth-test against the globe', async () => {
   ]);
 });
 
-test('serial-killer path points use a finite near-camera depth bypass (not Infinity)', async () => {
-  assert.ok(SERIAL_PATH_POINT_DISABLE_DEPTH_TEST_DISTANCE > 0);
-  assert.notEqual(
+test('serial-killer path points follow sparse surface-marker depth policy', async () => {
+  // Installations/FIRMS/cyclones use Infinity so photoreal tiles do not bury pins.
+  assert.equal(
     SERIAL_PATH_POINT_DISABLE_DEPTH_TEST_DISTANCE,
     Number.POSITIVE_INFINITY,
   );

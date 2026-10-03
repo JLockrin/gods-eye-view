@@ -103,8 +103,7 @@ test('serial-killer path layer registers pick ownership and depth-safe points', 
     propValue(point.point.disableDepthTestDistance),
     SERIAL_PATH_POINT_DISABLE_DEPTH_TEST_DISTANCE,
   );
-  assert.ok(SERIAL_PATH_POINT_DISABLE_DEPTH_TEST_DISTANCE > 0);
-  assert.notEqual(
+  assert.equal(
     SERIAL_PATH_POINT_DISABLE_DEPTH_TEST_DISTANCE,
     Number.POSITIVE_INFINITY,
   );

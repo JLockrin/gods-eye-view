@@ -20,13 +20,14 @@ const EDUCATIONAL_BLURB =
   'Investigative / educational mapping of public historical cases only — not a live crime feed. City-level pins are approximate; uncertain streets are omitted.';
 
 /**
- * Photoreal / Google 3D tiles bury clamp-to-ground points when depth-test
- * distance is 0 (the shared event-point globe policy). A finite near-camera
- * bypass keeps case pins pickable while inspecting a metro area, while
- * antipodal / far-side points still depth-test against the globe (unlike
- * Infinity, which painted through the planet).
+ * Sparse case pins follow installations / FIRMS / cyclones surface markers:
+ * always-on-top against photoreal tiles so they stay pickable. Far-side bleed
+ * is mitigated with translucencyByDistance (this pack is ~13 U.S. points, not
+ * a dense global event feed). Shared EVENT_POINT depth-0 policy is intentional
+ * for dense globe layers and is the wrong tradeoff here.
  */
-export const SERIAL_PATH_POINT_DISABLE_DEPTH_TEST_DISTANCE = 250_000;
+export const SERIAL_PATH_POINT_DISABLE_DEPTH_TEST_DISTANCE =
+  Number.POSITIVE_INFINITY;
 
 function pointPixelSize(role) {
   if (role === 'body') return 14;
@@ -278,6 +279,12 @@ export function createSerialKillerPathsLayer({
                   1.35,
                   120000,
                   0.55,
+                ),
+                translucencyByDistance: new Cesium.NearFarScalar(
+                  50_000,
+                  1.0,
+                  2_000_000,
+                  0.0,
                 ),
               },
               properties: {

@@ -6,17 +6,21 @@ import {
   placesInView,
 } from '../../src/layers/localFocus/ohioTnFourPlaces.js';
 import {
+  SEX_OFFENDER_PLACE_COVERAGE,
+  coverageNoteForPlaces,
+  liveFeedSummary,
+} from '../../src/layers/localFocus/placeCoverage.js';
+import {
   readResponseJsonCapped,
   coalesceProxyRequest,
 } from './common/http.js';
 import { makeRateLimiter, clientKey } from './common/rate-limit.js';
 
 /**
- * Only Knox County, TN has a verified keyless official ArcGIS registry feed
- * (Tennessee TBI). Allen County OH (Lima, Beaverdam) and Hancock County OH
- * (Findlay) publish through the Ohio AG SORN search UI / sheriff pages — not a
- * documented programmatic open API — so those places stay empty rather than
- * scraping NSOPW or OffenderWatch.
+ * Knox County, TN: Tennessee TBI Sex Offender Registry ArcGIS (keyless).
+ * Allen / Hancock OH: Ohio AG eSORN / OffenderWatch forbids automation
+ * (CrimeWatch terms: no bots/crawlers/scraping) and is captcha-gated — empty
+ * with an explicit per-place block note rather than scraping NSOPW.
  */
 export const SEX_OFFENDER_SOURCES = Object.freeze([
   Object.freeze({
@@ -34,9 +38,6 @@ export const SEX_OFFENDER_SOURCES = Object.freeze([
     placeIds: Object.freeze(['knoxville-tn']),
   }),
 ]);
-
-const OHIO_EMPTY_NOTE =
-  'Allen County OH (Lima, Beaverdam) and Hancock County OH (Findlay): no keyless official registry ArcGIS/SODA feed found — Ohio AG SORN is a search UI, not used.';
 
 const MIB = 1024 * 1024;
 const CACHE_TTL_MS = 180_000;
@@ -126,12 +127,15 @@ export function sexOffendersProxy({
         note: 'Viewport is outside Lima, Beaverdam, Findlay (OH) and Knoxville (TN).',
       };
     }
+    const placeIds = places.map((place) => place.id);
     const jurisdictions = jurisdictionsInView(bounds, FOCUS_PLACES);
+    const emptyNote = coverageNoteForPlaces(
+      placeIds,
+      SEX_OFFENDER_PLACE_COVERAGE,
+    );
+    const liveNote = liveFeedSummary(SEX_OFFENDER_PLACE_COVERAGE);
     const active = sources.filter((source) =>
       jurisdictions.some((entry) => entry.id === source.jurisdictionId),
-    );
-    const ohioInView = jurisdictions.some((entry) =>
-      entry.id.endsWith('-oh'),
     );
     if (!active.length) {
       return {
@@ -139,11 +143,12 @@ export function sexOffendersProxy({
         rows: [],
         coverage: 'none',
         sources: [],
-        places: places.map((place) => place.id),
+        places: placeIds,
         jurisdictions: jurisdictions.map((entry) => entry.label),
-        note: ohioInView
-          ? OHIO_EMPTY_NOTE
-          : 'No wired registry source for the focused places in view.',
+        note:
+          emptyNote ||
+          'No wired registry source for the focused places in view.',
+        placeCoverage: placeIds.map((id) => SEX_OFFENDER_PLACE_COVERAGE[id]),
       };
     }
 
@@ -176,9 +181,10 @@ export function sexOffendersProxy({
       rows: rows.slice(0, maxRecords),
       coverage: rows.length ? 'partial' : 'empty',
       sources: used,
-      places: places.map((place) => place.id),
+      places: placeIds,
       jurisdictions: jurisdictions.map((entry) => entry.label),
-      note: ohioInView ? OHIO_EMPTY_NOTE : null,
+      note: [liveNote, emptyNote].filter(Boolean).join(' · ') || null,
+      placeCoverage: placeIds.map((id) => SEX_OFFENDER_PLACE_COVERAGE[id]),
     };
   }
 

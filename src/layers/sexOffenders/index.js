@@ -44,7 +44,7 @@ export function createSexOffendersLayer(options = {}) {
     viewportBounded: true,
     pointPixelSize: 9,
     emptyStatusMessage:
-      'No registry points here (Knoxville TN via TBI; Ohio towns have no keyless open feed)',
+      'No registry points here — Knoxville TN via TBI; Ohio towns blocked (OffenderWatch terms forbid bots; captcha UI; no county ArcGIS feed)',
     colorFor: (row) => Cesium.Color.fromCssColorString(sexOffenderAccent(row)),
     buildCard: (row) => buildSexOffenderCard(row),
     selectRows: selectSexOffenderRows,

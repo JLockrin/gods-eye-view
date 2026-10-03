@@ -205,7 +205,7 @@ function fromGeoJsonFeature(feature, index, sourceMeta = {}) {
     stableId,
     lat: coords.lat,
     lon: coords.lon,
-    title: crimeType,
+    title: textOrNull(properties.title) || crimeType,
     crimeType,
     description,
     jurisdiction,
@@ -217,7 +217,13 @@ function fromGeoJsonFeature(feature, index, sourceMeta = {}) {
     sourceName,
     sourceUrl:
       textOrNull(sourceMeta.aboutUrl) || textOrNull(properties.sourceUrl),
-    summary: [crimeType, jurisdiction, date].filter(Boolean).join(' · '),
+    summary: [
+      textOrNull(properties.title) || crimeType,
+      jurisdiction,
+      date,
+    ]
+      .filter(Boolean)
+      .join(' · '),
   };
 }
 

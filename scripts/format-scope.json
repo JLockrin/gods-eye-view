@@ -889,5 +889,8 @@
   "server/providers/crimeIncidents.js",
   "src/layers/localFocus/ohioTnFourPlaces.js",
   "src/layers/localFocus/focusControls.js",
-  "src/layers/localFocus/ohioTnFourPlaces.test.mjs"
+  "src/layers/localFocus/ohioTnFourPlaces.test.mjs",
+  "src/layers/localFocus/placeCoverage.js",
+  "src/layers/localFocus/placeCoverage.test.mjs",
+  "server/providers/crimeIncidents/knoxvilleUnsolved.js"
 ]

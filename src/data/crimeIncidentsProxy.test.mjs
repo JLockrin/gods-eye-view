@@ -29,54 +29,72 @@ function install(options = {}) {
 }
 
 test('crime proxy requires bounds', async () => {
-  const request = install();
+  const request = install({
+    knoxvilleUnsolved: { query: async () => ({ type: 'FeatureCollection', features: [] }) },
+  });
   const res = await request('/');
   assert.equal(res.status, 400);
   assert.equal(res.body.error, 'bounds_required');
 });
 
-test('focused viewport without upstream stays empty with an honest note', async () => {
-  const request = install({ now: () => 7, upstreamUrl: '' });
-  const res = await request(
-    '/?west=-84.05&south=35.90&east=-83.85&north=36.05&maxrecords=50',
-  );
-  assert.equal(res.status, 200);
-  assert.equal(res.body.coverage, 'none');
-  assert.equal(res.body.rows.length, 0);
-  assert.match(res.body.note, /LexisNexis|keyless|KGIS/i);
-  assert.deepEqual(res.body.places, ['knoxville-tn']);
-});
-
-test('optional HTTPS upstream can supply scoped rows', async () => {
-  const urls = [];
+test('Ohio focus stays empty with LexisNexis / token-wall block notes', async () => {
   const request = install({
-    now: () => 11,
-    upstreamUrl: 'https://example.test/crime.geojson',
-    fetchImpl: async (url) => {
-      urls.push(String(url));
-      return Response.json({
-        type: 'FeatureCollection',
-        features: [
-          {
-            type: 'Feature',
-            geometry: { type: 'Point', coordinates: [-84.1, 40.74] },
-            properties: {
-              OFFENSE: 'HOMICIDE',
-              REPORT_DAT: Date.parse('2026-02-01'),
-              WARD: '1',
-            },
-          },
-        ],
-      });
+    now: () => 7,
+    upstreamUrl: '',
+    knoxvilleUnsolved: {
+      query: async () => {
+        throw new Error('should not query Knoxville for Lima bbox');
+      },
     },
   });
-  // Use Lima bbox; optional upstream normalizes as configured-upstream / geojson.
-  // Force dc-mpd-like props through generic geojson path via source meta in proxy.
   const res = await request(
     '/?west=-84.2&south=40.70&east=-84.0&north=40.78&maxrecords=50',
   );
   assert.equal(res.status, 200);
-  assert.ok(urls[0].startsWith('https://example.test/crime.geojson'));
-  // Generic GeoJSON without crimeType may yield 0 rows; accept either wired success or empty normalize.
-  assert.ok(Array.isArray(res.body.rows));
+  assert.equal(res.body.coverage, 'none');
+  assert.equal(res.body.rows.length, 0);
+  assert.match(res.body.note, /Token Required|LexisNexis|499/i);
+  assert.ok(res.body.places.includes('lima-oh'));
+});
+
+test('Knoxville focus returns geocoded unsolved-homicide points from the tip page', async () => {
+  const request = install({
+    now: () => 11,
+    upstreamUrl: '',
+    knoxvilleUnsolved: {
+      id: 'knoxville-unsolved-homicides',
+      name: 'Knoxville PD Unsolved Murder Cases (public tip list)',
+      aboutUrl: 'https://www.knoxvilletn.gov/government/city_departments_offices/police_department/unsolved_murder_cases',
+      async query() {
+        return {
+          type: 'FeatureCollection',
+          features: [
+            {
+              type: 'Feature',
+              geometry: { type: 'Point', coordinates: [-83.92, 35.96] },
+              properties: {
+                crimeType: 'HOMICIDE',
+                description: 'On 02/28/25, tip listing',
+                jurisdiction: 'Knoxville, TN · Knox County',
+                date: '2025-02-28T00:00:00.000Z',
+                id: 'knoxville-unsolved:test',
+                title: 'Unsolved homicide · Test Victim',
+                sourceId: 'knoxville-unsolved',
+                sourceName: 'Knoxville PD Unsolved Murder Cases (city tip page)',
+              },
+            },
+          ],
+        };
+      },
+    },
+  });
+  const res = await request(
+    '/?west=-84.05&south=35.90&east=-83.85&north=36.05&maxrecords=50',
+  );
+  assert.equal(res.status, 200);
+  assert.equal(res.body.rows.length, 1);
+  assert.equal(res.body.rows[0].crimeType, 'HOMICIDE');
+  assert.equal(res.body.rows[0].severity, 'homicide');
+  assert.deepEqual(res.body.sources, ['knoxville-unsolved-homicides']);
+  assert.match(res.body.note, /Knoxville/i);
 });

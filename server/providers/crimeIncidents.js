@@ -6,28 +6,29 @@ import {
   placesInView,
 } from '../../src/layers/localFocus/ohioTnFourPlaces.js';
 import {
+  CRIME_PLACE_COVERAGE,
+  coverageNoteForPlaces,
+  liveFeedSummary,
+} from '../../src/layers/localFocus/placeCoverage.js';
+import {
   readResponseJsonCapped,
   coalesceProxyRequest,
 } from './common/http.js';
 import { makeRateLimiter, clientKey } from './common/rate-limit.js';
+import { createKnoxvilleUnsolvedSource } from './crimeIncidents/knoxvilleUnsolved.js';
 
 /**
  * Scoped crime proxy for Lima / Beaverdam / Findlay (OH) and Knoxville (TN).
  *
- * No keyless official incident-point API was found for these jurisdictions:
- * Knoxville and Findlay publish through LexisNexis Community Crime Map /
- * Citizen Connect (no documented programmatic access; not scraped), KGIS
- * KCSO Crime is auth-gated (HTTP 401), and FBI Crime Data Explorer needs an
- * API key that is not in this repo. The provider still follows the same
- * viewport/proxy pattern so a future official feed can plug in here.
+ * Live built-in feed today: Knoxville unsolved-murder tip listings (homicides)
+ * from the City of Knoxville public HTML page, geocoded via Nominatim.
+ * LexisNexis Community Crime Map / Findlay Citizen Connect forbid automation;
+ * Lima COLGIS Police is token-gated; KGIS is auth-gated; FBI CDE needs a key.
  *
  * Optional: set CRIME_INCIDENTS_UPSTREAM_URL to a GeoJSON/ArcGIS query URL that
  * already returns only these places — still never a national scrape.
  */
 export const CRIME_INCIDENT_SOURCES = Object.freeze([]);
-
-const EMPTY_COVERAGE_NOTE =
-  'No keyless official crime-point feed for Allen Co. OH (Lima, Beaverdam), Hancock Co. OH (Findlay), or Knox Co. TN (Knoxville). Public maps use LexisNexis/Citizen Connect (no documented open API); KGIS KCSO Crime is auth-gated; FBI CDE needs a key not in the repo.';
 
 const MIB = 1024 * 1024;
 const CACHE_TTL_MS = 120_000;
@@ -59,6 +60,14 @@ function bboxParam(bounds) {
   return `-180,${bounds.south},${bounds.east},${bounds.north}`;
 }
 
+function pointInBounds(lon, lat, bounds) {
+  if (!bounds) return true;
+  if (lat < bounds.south || lat > bounds.north) return false;
+  if (bounds.west <= bounds.east)
+    return lon >= bounds.west && lon <= bounds.east;
+  return lon >= bounds.west || lon <= bounds.east;
+}
+
 /**
  * GET /api/crime-incidents?west=&south=&east=&north=&maxrecords=500
  */
@@ -67,6 +76,7 @@ export function crimeIncidentsProxy({
   now = () => Date.now(),
   sources = CRIME_INCIDENT_SOURCES,
   upstreamUrl = process.env.CRIME_INCIDENTS_UPSTREAM_URL || '',
+  knoxvilleUnsolved = createKnoxvilleUnsolvedSource({ fetchImpl, now }),
 } = {}) {
   const cache = new Map();
   const inFlight = new Map();
@@ -77,7 +87,6 @@ export function crimeIncidentsProxy({
     if (!url) return null;
     if (!/^https:\/\//i.test(url)) throw new Error('upstream_must_be_https');
     const separator = url.includes('?') ? '&' : '?';
-    // Caller-configured GeoJSON endpoint; still bbox-scoped via query args when supported.
     const requestUrl = `${url}${separator}west=${bounds.west}&south=${bounds.south}&east=${bounds.east}&north=${bounds.north}&maxrecords=${maxRecords}&geometry=${encodeURIComponent(bboxParam(bounds))}&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outSR=4326&f=geojson`;
     const signal = AbortSignal.timeout(30_000);
     const response = await fetchImpl(requestUrl, {
@@ -98,6 +107,21 @@ export function crimeIncidentsProxy({
     return rows;
   }
 
+  async function queryKnoxville(bounds, maxRecords, signal) {
+    if (!knoxvilleUnsolved?.query) return [];
+    const collection = await knoxvilleUnsolved.query({
+      signal,
+      maxRecords,
+    });
+    const rows = normalizeCrimeIncidentSnapshot(collection, {
+      id: 'knoxville-unsolved',
+      name: knoxvilleUnsolved.name,
+      aboutUrl: knoxvilleUnsolved.aboutUrl,
+    });
+    if (!rows) return [];
+    return rows.filter((row) => pointInBounds(row.lon, row.lat, bounds));
+  }
+
   async function fetchBounds(bounds, maxRecords) {
     const places = placesInView(bounds, FOCUS_PLACES);
     if (!places.length) {
@@ -109,7 +133,10 @@ export function crimeIncidentsProxy({
         note: 'Viewport is outside Lima, Beaverdam, Findlay (OH) and Knoxville (TN).',
       };
     }
+    const placeIds = places.map((place) => place.id);
     const jurisdictions = jurisdictionsInView(bounds, FOCUS_PLACES);
+    const emptyNote = coverageNoteForPlaces(placeIds, CRIME_PLACE_COVERAGE);
+    const liveNote = liveFeedSummary(CRIME_PLACE_COVERAGE);
 
     if (upstreamUrl) {
       const rows = await queryOptionalUpstream(bounds, maxRecords);
@@ -118,23 +145,39 @@ export function crimeIncidentsProxy({
         rows: (rows || []).slice(0, maxRecords),
         coverage: rows?.length ? 'partial' : 'empty',
         sources: ['configured-upstream'],
-        places: places.map((place) => place.id),
+        places: placeIds,
         jurisdictions: jurisdictions.map((entry) => entry.label),
+        note: emptyNote,
+        placeCoverage: placeIds.map((id) => CRIME_PLACE_COVERAGE[id]),
       };
     }
 
-    // Built-in sources list is intentionally empty until an official keyless
-    // point feed for these four places is available.
     void sources;
+    const knoxInView = jurisdictions.some((entry) => entry.id === 'knox-tn');
+    const rows = [];
+    const used = [];
+    if (knoxInView) {
+      const signal = AbortSignal.timeout(45_000);
+      const knoxRows = await queryKnoxville(bounds, maxRecords, signal);
+      used.push('knoxville-unsolved-homicides');
+      rows.push(...knoxRows);
+    }
+
+    const coverage = rows.length
+      ? 'partial'
+      : emptyNote
+        ? 'none'
+        : 'empty';
+
     return {
       fetchedAt: now(),
-      rows: [],
-      coverage: 'none',
-      sources: [],
-      places: places.map((place) => place.id),
+      rows: rows.slice(0, maxRecords),
+      coverage,
+      sources: used,
+      places: placeIds,
       jurisdictions: jurisdictions.map((entry) => entry.label),
-      note: EMPTY_COVERAGE_NOTE,
-      keyRequired: false,
+      note: [liveNote, emptyNote].filter(Boolean).join(' · ') || null,
+      placeCoverage: placeIds.map((id) => CRIME_PLACE_COVERAGE[id]),
     };
   }
 

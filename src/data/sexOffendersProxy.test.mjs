@@ -55,7 +55,7 @@ test('Ohio focus returns empty coverage without calling TBI', async () => {
   assert.equal(res.body.coverage, 'none');
   assert.equal(res.body.rows.length, 0);
   assert.equal(urls.length, 0);
-  assert.match(res.body.note, /Allen County/);
+  assert.match(res.body.note, /Allen County|OffenderWatch|captcha|bots/i);
 });
 
 test('Knoxville focus queries TBI with Knox County filter', async () => {

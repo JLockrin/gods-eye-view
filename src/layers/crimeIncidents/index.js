@@ -29,7 +29,8 @@ function selectCrimeRows(rows) {
 
 /**
  * Homicides & other crimes for Lima / Beaverdam / Findlay OH and Knoxville TN.
- * Built-in keyless point feeds are not available for these places yet.
+ * Live today: Knoxville unsolved-murder tip listings (homicides). Ohio empty
+ * with explicit LexisNexis / token-wall blocks.
  */
 export function createCrimeIncidentsLayer(options = {}) {
   const layer = createPointEventLayer({
@@ -43,7 +44,7 @@ export function createCrimeIncidentsLayer(options = {}) {
     viewportBounded: true,
     pointPixelSize: 8,
     emptyStatusMessage:
-      'No open crime-point feed for these four places yet (see layer note)',
+      'Knoxville: unsolved-homicide tip points when geocoded; Ohio places blocked (LexisNexis automation ban / Lima Police GIS token wall)',
     colorFor: (row) =>
       Cesium.Color.fromCssColorString(crimeIncidentAccent(row)),
     buildCard: (row) => buildCrimeIncidentCard(row),

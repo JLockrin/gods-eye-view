@@ -165,14 +165,14 @@ export const DATA_CREDITS = [
     html:
       'Registered sex offenders (scoped to Lima/Beaverdam/Findlay OH and Knoxville TN): ' +
       '<a href="https://tnmap.tn.gov/arcgis/rest/services/PUBLIC_SAFETY/TBI_SEX_OFFENDER_REGISTRY/MapServer" target="_blank" rel="noopener">Tennessee TBI Sex Offender Registry</a> ' +
-      'for Knox County / Knoxville only. Allen County OH and Hancock County OH have no keyless open registry API in this app (Ohio AG SORN search UI is not scraped).',
+      'for Knox County / Knoxville only. Allen County OH and Hancock County OH stay empty — Ohio AG eSORN / OffenderWatch (CrimeWatch) terms forbid bots/crawlers; captcha-gated search UI; no keyless county ArcGIS registry feed.',
   },
   {
     key: 'crime-incidents',
     html:
       'Homicides &amp; other crimes (scoped to Lima/Beaverdam/Findlay OH and Knoxville TN): ' +
-      'no built-in keyless official incident-point feed for these jurisdictions yet ' +
-      '(LexisNexis Community Crime Map / Citizen Connect are not scraped; KGIS KCSO Crime is auth-gated).',
+      '<a href="https://www.knoxvilletn.gov/government/city_departments_offices/police_department/unsolved_murder_cases" target="_blank" rel="noopener">Knoxville PD Unsolved Murder Cases</a> ' +
+      'tip listings (homicides, Nominatim-geocoded). LexisNexis Community Crime Map / Findlay Citizen Connect are not scraped (LN terms forbid programmatic access). Lima COLGIS Police GIS is token-gated; KGIS is auth-gated.',
   },
   OSM_CREDIT,
   OPENMAPTILES_CREDIT,

@@ -1572,6 +1572,7 @@
       "src/app/layers/tsunamis.js",
       "src/app/layers/gdeltGeo.js",
       "src/app/layers/historicPlaces.js",
+      "src/app/layers/serialKillerPaths.js",
       "src/app/layers/firms.js",
       "src/app/layers/flights.js",
       "src/app/layers/militaryAwareness.js",
@@ -1656,6 +1657,7 @@
       "src/data/tsunamis.js",
       "src/data/gdeltGeo.js",
       "src/data/historicPlaces.js",
+      "src/data/serialKillerPaths.js",
       "src/data/fireAnchors.js",
       "src/data/firmsAdapt.js",
       "src/data/firmsHeatmap.js",
@@ -1831,6 +1833,10 @@
       "src/layers/historicPlaces/records.js",
       "src/layers/historicPlaces/source.js",
       "src/layers/historicPlaces/index.js",
+      "src/layers/serialKillerPaths/index.js",
+      "src/layers/serialKillerPaths/source.js",
+      "src/layers/serialKillerPaths/records.js",
+      "src/layers/serialKillerPaths/cards.js",
       "src/layers/eventMarkers/pointEventLayer.js",
       "src/layers/eventMarkers/selectedCard.js",
       "src/layers/earthquakes/model.js",
@@ -2363,6 +2369,7 @@
       "src/app/layers/tsunamis.js",
       "src/app/layers/gdeltGeo.js",
       "src/app/layers/historicPlaces.js",
+      "src/app/layers/serialKillerPaths.js",
       "src/app/layers/firms.js",
       "src/app/layers/flights.js",
       "src/app/layers/militaryAwareness.js",
@@ -2543,6 +2550,10 @@
       "src/layers/historicPlaces/records.js",
       "src/layers/historicPlaces/source.js",
       "src/layers/historicPlaces/index.js",
+      "src/layers/serialKillerPaths/index.js",
+      "src/layers/serialKillerPaths/source.js",
+      "src/layers/serialKillerPaths/records.js",
+      "src/layers/serialKillerPaths/cards.js",
       "src/layers/eventMarkers/pointEventLayer.js",
       "src/layers/eventMarkers/selectedCard.js",
       "src/layers/earthquakes/model.js",
@@ -2835,7 +2846,8 @@
       "src/data/infrastructureOverlayEntry.js",
       "src/data/tsunamis.js",
       "src/data/gdeltGeo.js",
-      "src/data/historicPlaces.js"
+      "src/data/historicPlaces.js",
+      "src/data/serialKillerPaths.js"
     ],
     "external": [
       "hls.js",
@@ -3301,6 +3313,8 @@
       "src/layers/gdeltGeo/source.js",
       "src/layers/historicPlaces/records.js",
       "src/layers/historicPlaces/source.js",
+      "src/layers/serialKillerPaths/records.js",
+      "src/layers/serialKillerPaths/source.js",
       "src/layers/submarineCables/bundledSource.js"
     ],
     "external": []
@@ -3781,6 +3795,32 @@
       "src/layers/historicPlaces/records.js",
       "src/layers/historicPlaces/source.js",
       "src/sources/httpBody.js"
+    ],
+    "external": []
+  },
+  "serial-killer-paths": {
+    "exports": [
+      "./layers/serial-killer-paths"
+    ],
+    "modules": [
+      "src/layers/serialKillerPaths/index.js",
+      "src/layers/serialKillerPaths/source.js",
+      "src/layers/serialKillerPaths/records.js",
+      "src/layers/serialKillerPaths/cards.js",
+      "src/layers/eventMarkers/pointEventLayer.js",
+      "src/layers/eventMarkers/selectedCard.js"
+    ],
+    "external": [
+      "cesium"
+    ]
+  },
+  "serial-killer-paths-source": {
+    "exports": [
+      "./layers/serial-killer-paths/source"
+    ],
+    "modules": [
+      "src/layers/serialKillerPaths/records.js",
+      "src/layers/serialKillerPaths/source.js"
     ],
     "external": []
   }

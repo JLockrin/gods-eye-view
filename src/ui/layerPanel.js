@@ -59,6 +59,7 @@ const PANEL_GROUPS = [
       'tsunamis',
       'gdelt-geo',
       'historic-places',
+      'serial-killer-paths',
     ],
   },
   {
@@ -97,6 +98,7 @@ const PANEL_LABELS = {
   tsunamis: 'Tsunamis',
   'gdelt-geo': 'Geographic News',
   'historic-places': 'Historic Places & Forgotten Infrastructure',
+  'serial-killer-paths': 'Historical Serial Cases',
 };
 
 function panelLabel(layer) {

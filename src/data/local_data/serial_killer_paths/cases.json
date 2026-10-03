@@ -1,0 +1,291 @@
+{
+  "layerId": "serial-killer-paths",
+  "version": 1,
+  "educationalNote": "Investigative / educational mapping of public historical cases only. Not a live crime feed. Coordinates are taken from court opinions and reputable public reporting; uncertain street addresses are omitted or marked approximate.",
+  "cases": [
+    {
+      "id": "anthony-sowell",
+      "name": "Anthony Sowell",
+      "aka": "Imperial Avenue murders",
+      "years": "2007–2009",
+      "regionLabel": "Cleveland, OH",
+      "color": "#b45309",
+      "summary": "Eleven women were murdered and their remains concealed at Sowell’s home at 12205 Imperial Avenue. Ohio Supreme Court opinions identify that address as the kill and body-recovery site; individual street-level last-seen points are mostly unpublished, so v1 maps the court-confirmed residence locus and a chronological victim list rather than inventing neighborhood pins.",
+      "attribution": "Ohio Supreme Court, State v. Sowell, 2016-Ohio-8025 (public court opinion); contemporaneous Cleveland Plain Dealer / cleveland.com identification reporting for disappearance chronology.",
+      "sourceUrls": [
+        "https://www.supremecourt.ohio.gov/rod/docs/pdf/0/2016/2016-ohio-8025.pdf",
+        "https://www.cleveland.com/metro/2009/11/names_put_to_three_more_victim.html"
+      ],
+      "pathSiteIds": ["sowell-imperial"],
+      "sites": [
+        {
+          "id": "sowell-carmichael-last",
+          "role": "last_seen",
+          "sequence": 5,
+          "relatedPathId": "sowell-imperial",
+          "lat": 41.43535,
+          "lon": -81.514824,
+          "precision": "city",
+          "approximate": true,
+          "placeLabel": "Warrensville Heights, OH (city approximate)",
+          "title": "#5 last seen area · Tonia Carmichael",
+          "whenLabel": "2008-11",
+          "summary": "Contemporaneous reporting associated Carmichael with Warrensville Heights. Exact last-seen street omitted; body recovered at Imperial Avenue."
+        },
+        {
+          "id": "sowell-fortson-last",
+          "role": "last_seen",
+          "sequence": 9,
+          "relatedPathId": "sowell-imperial",
+          "lat": 41.533107,
+          "lon": -81.579014,
+          "precision": "city",
+          "approximate": true,
+          "placeLabel": "East Cleveland, OH (city approximate)",
+          "title": "#9 last seen area · Telacia Fortson",
+          "whenLabel": "2009-06",
+          "summary": "Contemporaneous reporting associated Fortson with East Cleveland. Exact last-seen street omitted; remains recovered at Imperial Avenue."
+        },
+        {
+          "id": "sowell-imperial",
+          "role": "kill_and_body",
+          "sequence": 1,
+          "lat": 41.472896,
+          "lon": -81.597598,
+          "precision": "address",
+          "placeLabel": "12205 Imperial Avenue, Cleveland, OH",
+          "title": "#1–11 · Imperial Avenue residence",
+          "whenLabel": "2007–2009 (remains recovered Oct–Nov 2009)",
+          "summary": "Court-documented kill and body-recovery site for all eleven aggravated-murder victims. Remains were found inside the house and buried in the yard after search warrants beginning 29 Oct 2009.",
+          "victims": [
+            {
+              "order": 1,
+              "name": "Crystal Dozier",
+              "disappeared": "2007-05",
+              "notes": "Disappearance month from contemporaneous identification reporting."
+            },
+            {
+              "order": 2,
+              "name": "Tishana Culver",
+              "disappeared": "2008-06",
+              "notes": "Lived a few houses away on Imperial Avenue (news reporting)."
+            },
+            {
+              "order": 3,
+              "name": "Leshanda Long",
+              "disappeared": "2008-08",
+              "notes": "Skull recovered in the basement; other remains not located (court opinion)."
+            },
+            {
+              "order": 4,
+              "name": "Michelle Mason",
+              "disappeared": "2008-10",
+              "notes": "Lived near the Imperial Avenue neighborhood (news reporting)."
+            },
+            {
+              "order": 5,
+              "name": "Tonia Carmichael",
+              "disappeared": "2008-11",
+              "notes": "Family associated with Warrensville Heights; body buried near the back porch (court opinion)."
+            },
+            {
+              "order": 6,
+              "name": "Kim Yvette Smith",
+              "disappeared": "2009-01",
+              "notes": "Disappearance chronology from public encyclopedic / news summaries of official IDs."
+            },
+            {
+              "order": 7,
+              "name": "Amelda Hunter",
+              "disappeared": "2009-04",
+              "notes": "Family reported she visited Sowell’s neighborhood (news reporting)."
+            },
+            {
+              "order": 8,
+              "name": "Nancy Cobbs",
+              "disappeared": "2009-04",
+              "notes": "Reported living a few blocks from the Imperial Avenue house (news reporting)."
+            },
+            {
+              "order": 9,
+              "name": "Telacia Fortson",
+              "disappeared": "2009-06",
+              "notes": "Associated with East Cleveland in contemporaneous reporting; remains found on the third floor."
+            },
+            {
+              "order": 10,
+              "name": "Janice Webb",
+              "disappeared": "2009-06",
+              "notes": "Body located beneath the basement staircase (court opinion)."
+            },
+            {
+              "order": 11,
+              "name": "Diane Turner",
+              "disappeared": "2009-09",
+              "notes": "Remains found on the third floor with Fortson (court opinion)."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "alton-coleman",
+      "name": "Alton Coleman",
+      "aka": "1984 Midwest crime spree (with Debra Brown)",
+      "years": "1984",
+      "regionLabel": "WI / IL / IN / MI / OH",
+      "color": "#0f766e",
+      "summary": "Multi-state 1984 spree with court-documented Ohio murders (Toledo, Cincinnati, Norwood) plus earlier Wisconsin/Illinois/Indiana/Michigan crimes. City-level pins are used when opinions name a city but not a street; May & Morgan (Cincinnati) is intersection-level approximate from Ohio Supreme Court findings.",
+      "attribution": "Ohio Supreme Court, State v. Coleman, 37 Ohio St.3d 286 (1988) and 45 Ohio St.3d 298 (1989); public encyclopedic summaries of the 1984 spree for out-of-Ohio localities corroborated by contemporaneous news archives.",
+      "sourceUrls": [
+        "https://case-law.vlex.com/vid/state-v-coleman-no-891648393",
+        "https://case-law.vlex.com/vid/state-v-coleman-no-887837047",
+        "https://en.wikipedia.org/wiki/Alton_Coleman"
+      ],
+      "pathSiteIds": [
+        "coleman-wheat-body",
+        "coleman-williams-last",
+        "coleman-turks",
+        "coleman-temple",
+        "coleman-storey-last",
+        "coleman-walters",
+        "coleman-scott"
+      ],
+      "sites": [
+        {
+          "id": "coleman-wheat-last",
+          "role": "last_seen",
+          "sequence": 1,
+          "relatedPathId": "coleman-wheat-body",
+          "lat": 42.584677,
+          "lon": -87.821226,
+          "precision": "city",
+          "approximate": true,
+          "placeLabel": "Kenosha, WI (city approximate)",
+          "title": "#1 last seen · Vernita Wheat",
+          "whenLabel": "1984-05-29",
+          "summary": "Public accounts place Wheat’s abduction in Kenosha. Exact street omitted (not in the Ohio opinions used for this pack)."
+        },
+        {
+          "id": "coleman-wheat-body",
+          "role": "kill_and_body",
+          "sequence": 1,
+          "lat": 42.360227,
+          "lon": -87.831816,
+          "precision": "city",
+          "approximate": true,
+          "placeLabel": "Waukegan, IL (city approximate)",
+          "title": "#1 kill / body · Vernita Wheat",
+          "whenLabel": "1984-05-29 (body found 1984-06-19)",
+          "summary": "Body discovered in an abandoned Waukegan building. Mapped at city centroid — building address not asserted."
+        },
+        {
+          "id": "coleman-williams-last",
+          "role": "last_seen",
+          "sequence": 2,
+          "relatedPathId": "coleman-williams-body",
+          "lat": 41.602096,
+          "lon": -87.337065,
+          "precision": "city",
+          "approximate": true,
+          "placeLabel": "Gary, IN (city approximate)",
+          "title": "#2 last seen · Donna Williams",
+          "whenLabel": "1984-06-17",
+          "summary": "Disappeared from Gary. Kill-site street is not asserted here; body recovered in Detroit."
+        },
+        {
+          "id": "coleman-williams-body",
+          "role": "body",
+          "sequence": 2,
+          "lat": 42.331551,
+          "lon": -83.04664,
+          "precision": "city",
+          "approximate": true,
+          "placeLabel": "Detroit, MI (city approximate)",
+          "title": "#2 body found · Donna Williams",
+          "whenLabel": "Body found 1984-07-11",
+          "summary": "Public accounts place the body in Detroit, about half a mile from her recovered car. City-level pin only."
+        },
+        {
+          "id": "coleman-turks",
+          "role": "kill_and_body",
+          "sequence": 3,
+          "lat": 41.602096,
+          "lon": -87.337065,
+          "precision": "city",
+          "approximate": true,
+          "placeLabel": "Gary, IN (city approximate)",
+          "title": "#3 kill / body · Tamika Turks",
+          "whenLabel": "1984-06-18",
+          "summary": "Killed in a wooded area near Gary after abduction with a surviving relative. Exact woods coordinates omitted."
+        },
+        {
+          "id": "coleman-temple",
+          "role": "kill_and_body",
+          "sequence": 4,
+          "lat": 41.652914,
+          "lon": -83.537817,
+          "precision": "city",
+          "approximate": true,
+          "placeLabel": "Toledo, OH (city approximate)",
+          "title": "#4 kill / body · Virginia & Rachelle Temple",
+          "whenLabel": "Bodies found 1984-07-05",
+          "summary": "Ohio Supreme Court: bodies found in the crawl space of the Temple home in Toledo. Street address not asserted in this pack."
+        },
+        {
+          "id": "coleman-storey-last",
+          "role": "kill",
+          "sequence": 5,
+          "relatedPathId": "coleman-storey-body",
+          "lat": 39.125018,
+          "lon": -84.494614,
+          "precision": "intersection",
+          "approximate": true,
+          "placeLabel": "May & Morgan Streets, Cincinnati, OH",
+          "title": "#5 last with suspects · Tonnie Storey",
+          "whenLabel": "1984-07-11",
+          "summary": "Ohio Supreme Court: classmate saw Storey at May & Morgan with a man identified as Coleman. Intersection geocoded approximately from OSM street centerlines."
+        },
+        {
+          "id": "coleman-storey-body",
+          "role": "body",
+          "sequence": 5,
+          "lat": 39.131956,
+          "lon": -84.494067,
+          "precision": "street",
+          "approximate": true,
+          "placeLabel": "May Street, Walnut Hills, Cincinnati, OH",
+          "title": "#5 body found · Tonnie Storey",
+          "whenLabel": "Body found 1984-07-19",
+          "summary": "Ohio Supreme Court: body discovered in an abandoned building on May Street. Exact building number not asserted; pin is street-level approximate."
+        },
+        {
+          "id": "coleman-walters",
+          "role": "kill_and_body",
+          "sequence": 6,
+          "lat": 39.155615,
+          "lon": -84.459664,
+          "precision": "city",
+          "approximate": true,
+          "placeLabel": "Norwood, OH (city approximate)",
+          "title": "#6 kill / body · Marlene Walters",
+          "whenLabel": "1984-07-13",
+          "summary": "Ohio Supreme Court: Coleman and Brown entered the Walters home in Norwood; Marlene Walters was killed there. Street address not asserted in this pack."
+        },
+        {
+          "id": "coleman-scott",
+          "role": "kill_and_body",
+          "sequence": 7,
+          "lat": 39.768333,
+          "lon": -86.15835,
+          "precision": "city",
+          "approximate": true,
+          "placeLabel": "Indianapolis, IN (city approximate)",
+          "title": "#7 kill / body · Eugene Scott",
+          "whenLabel": "1984-07-18",
+          "summary": "Public accounts place Scott’s murder in the Indianapolis area during the flight back toward Illinois. City-level pin only."
+        }
+      ]
+    }
+  ]
+}
